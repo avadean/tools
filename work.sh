@@ -1847,7 +1847,7 @@ case $1 in
 ###########################################
   "remove" )
     if [ -d $dir_contents ] ; then
-      bash $script_this_script suppress save
+      bash $script_this_script --suppress save
       proj_ID=$(get_attribute $dir_contents/$file_info "^ID") ;
 
       cd $dir_contents/$dir_history ;
