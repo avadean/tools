@@ -19,4 +19,5 @@ rm *.chdiff ;
 rm *.chdiff_fmt ;
 rm *.geom ;
 #rm *.usp ;
+rm fort.79 ;
 
