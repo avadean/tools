@@ -315,7 +315,10 @@ if __name__ == '__main__':
                 if args.arg3.upper() in cells.dict_keywords:  # Need to code this.
                     if args.arg4:
                         file_cell = get_cell_file(args)
-                        functions.update_cell(file_cell, args)
+                        if file_cell:
+                            functions.update_cell(file_cell, args)
+                        else:
+                            print('Cannot find cell file to update... Exiting.')
                     else:
                         print('Please enter a value to update ' + args.arg3 + ' to... Exiting.')
                         sys.exit(1)
@@ -330,7 +333,10 @@ if __name__ == '__main__':
                 if args.arg3.upper() in params.dict_keywords:
                     if args.arg4:
                         file_param = get_param_file(args)
-                        functions.update_param(file_param, args)
+                        if file_param:
+                            functions.update_param(file_param, args)
+                        else:
+                            print('Cannot find param file to update... Exiting.')
                     else:
                         print('Please enter a value to update ' + args.arg3 + ' to... Exiting.')
                         sys.exit(1)
