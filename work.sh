@@ -129,8 +129,9 @@ for arg in "$@" ; do
   shift
   case "$arg" in
     #"--help") set -- "$@" "-h" ;;
-    "--suppress") set -- "$@" "-s" ;;
+    #"--current") set -- "$@" "-c" ;;
     "--no-zero-knowledge") set -- "$@" "-K" ;;
+    "--suppress") set -- "$@" "-s" ;;
     *       ) set -- "$@" "$arg" ;;
   esac
 done
