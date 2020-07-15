@@ -18,6 +18,7 @@ rm *.check_bak ;
 rm *.chdiff ;
 rm *.chdiff_fmt ;
 rm *.geom ;
-#rm *.usp ;
-rm fort.79 ;
+rm *.usp ;
+rm *.uspso ;
+rm fort.* ;
 
