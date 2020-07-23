@@ -51,23 +51,32 @@ if $print_help ; then
     echo '-L, --no-locate      will not vim into subroutine if found, redundant without --subroutine' ;
     echo '-s, --subroutine     searches files for subroutine and locates using vim' ;
     exit 0 ;
-fi
 
+elif $call_search ; then
+    echo "'call' feature has not been implemented yet." ;
+    echo 'Exiting.'
+    exit 1 ;
 
-if $subroutine_search ; then
-    temp_file=`mktemp` ;
-    for i in * ; do [ -f "${i}" ] && \grep --line-number --with-filename --extended-regexp "subroutine\s+${1}\s*\(" "$i" ; done >> $temp_file ;
-
-    num_lines=`cat $temp_file | wc -l` ;
-    if [[ $num_lines == 1 ]] ; then
-        file_to_open=`cat $temp_file | head -1 | cut -f1 -d:` ;
-        line_num=`cat $temp_file | head -1 | cut -f2 -d:` ;
-        [ $no_locate ] || vim +$line_num $file_to_open ;
-
-        exit 0 ;
-    else
+elif $subroutine_search ; then
+    if $no_locate ; then
         for i in * ; do [ -f "${i}" ] && \grep --line-number --with-filename --extended-regexp --color=auto "subroutine\s+${1}\s*\(" "$i" ; done ;
+    else
+        temp_file=`mktemp` ;
+
+        for i in * ; do [ -f "${i}" ] && \grep --line-number --with-filename --extended-regexp "subroutine\s+${1}\s*\(" "$i" ; done >> $temp_file ;
+
+        num_lines=`cat $temp_file | wc -l` ;
+        if [[ $num_lines == 1 ]] ; then
+            file_to_open=`cat $temp_file | head -1 | cut -f1 -d:` ;
+            line_num=`cat $temp_file | head -1 | cut -f2 -d:` ;
+            vim +$line_num $file_to_open ;
+
+            exit 0 ;
+        else
+            for i in * ; do [ -f "${i}" ] && \grep --line-number --with-filename --extended-regexp --color=auto "subroutine\s+${1}\s*\(" "$i" ; done ;
+        fi
     fi
+
 else
     for i in * ; do [ -f "$i" ] && \grep --line-number --with-filename --color=auto "${1}" "${i}" ; done
 fi
