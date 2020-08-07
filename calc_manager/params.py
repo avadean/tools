@@ -19,6 +19,7 @@ dict_keywords = {
     'CUT_OFF_ENERGY'            : { 'priority' : 1.3 , 'required' : True , 'default' : 'set by BASIS_PRECISION=FINE', 'is_string' : False, 'is_bool' : False, 'is_float' : True , 'is_int' : False, 'has_unit' : True , 'allowed_values' : [float("inf"), 0.0]},
     'FIX_OCCUPANCY'             : { 'priority' : 1.4 , 'required' : False, 'default' : 'FALSE'                      , 'is_string' : False, 'is_bool' : True , 'is_float' : False, 'is_int' : False, 'has_unit' : False, 'allowed_values' : ['T', 'F', 'TRUE', 'FALSE']},
     'BASIS_PRECISION'           : { 'priority' : 1.5 , 'required' : False, 'default' : 'FINE'                       , 'is_string' : True , 'is_bool' : False, 'is_float' : False, 'is_int' : False, 'has_unit' : False, 'allowed_values' : ['NULL', 'COARSE', 'MEDIUM', 'FINE', 'PRECISE', 'EXTREME']},
+    'RELATIVISTIC_TREATMENT'    : { 'priority' : 1.6 , 'required' : False, 'default' : 'KOELLING-HARMON'            , 'is_string' : True , 'is_bool' : False, 'is_float' : False, 'is_int' : False, 'has_unit' : False, 'allowed_values' : ['KOELLING-HARMON', 'SCHROEDINGER', 'ZORA', 'DIRAC']},
 
     # Metals.
     'SMEARING_WIDTH'            : { 'priority' : 2.1 , 'required' : False, 'default' : '0.2 eV'                     , 'is_string' : False, 'is_bool' : False, 'is_float' : True , 'is_int' : False, 'has_unit' : True , 'allowed_values' : [float("inf"), 0.0]},
