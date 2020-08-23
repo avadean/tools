@@ -56,37 +56,37 @@ def check_param_exist(param_prefix=False):
     if param_prefix:
         return True if (param_prefix + '.param') in os.listdir() else False
     else:
-        return True if len([f for f in os.listdir() if re.findall(r'\.param$', f)]) >= 1 else False
+        return True if any([True for f in os.listdir() if re.search(r'\.param$', f)]) else False
 
 def check_cell_exist(cell_prefix=False):
     lst = os.listdir()
     if cell_prefix:
         return True if (cell_prefix + '.cell') in lst else False
     else:
-        return True if len([f for f in lst if re.findall(r'\.cell$', f)]) - \
-            len([f for f in lst if re.findall(r'-out\.cell$', f)]) >= 1 else False
+        return True if len([True for f in lst if re.search(r'\.cell$', f)]) - \
+            len([True for f in lst if re.search(r'-out\.cell$', f)]) >= 1 else False
 
 def check_input_exist(input_prefix=False):
     return True if check_param_exist(input_prefix) or check_cell_exist(input_prefix) else False
 
 def check_param_excess():
-    return True if len([f for f in os.listdir() if re.findall(r'\.param$', f)]) > 1 else False
+    return True if len([f for f in os.listdir() if re.search(r'\.param$', f)]) > 1 else False
 
 def check_cell_excess():
     lst = os.listdir()
-    return True if len([f for f in lst if re.findall(r'\.cell$', f)]) - \
-        len([f for f in lst if re.findall(r'-out\.cell$', f)]) > 1 else False
+    return True if len([f for f in lst if re.search(r'\.cell$', f)]) - \
+        len([f for f in lst if re.search(r'-out\.cell$', f)]) > 1 else False
 
 def check_input_excess():
     return True if check_param_excess() or check_cell_exist() else False
 
 def check_param_zero():
-    return True if len([f for f in os.listdir() if re.findall(r'\.param$', f)]) == 0 else False
+    return True if not any([True for f in os.listdir() if re.search(r'\.param$', f)]) else False
 
 def check_cell_zero():
     lst = os.listdir()
-    return True if len([f for f in lst if re.findall(r'\.cell$', f)]) - \
-        len([f for f in lst if re.findall(r'-out\.cell$', f)]) == 0 else False
+    return True if len([f for f in lst if re.search(r'\.cell$', f)]) - \
+        len([f for f in lst if re.search(r'-out\.cell$', f)]) == 0 else False
 
 
 def get_param_file(args, input_prefix=False):
@@ -110,10 +110,11 @@ def get_param_file(args, input_prefix=False):
             else:
                 return False
         else:
-            param_file = [f for f in os.listdir() if re.findall(r'\.param$', f)][0]
-            if args.verbose:
-                print('Found param file: ' + param_file)
-            return param_file
+            for f in os.listdir():
+                if re.search(r'\.param$', f):
+                    if args.verbose:
+                        print('Found param file: ' + f)
+                    return f
 
 def get_cell_file(args, input_prefix=False):
     if input_prefix:
@@ -136,10 +137,11 @@ def get_cell_file(args, input_prefix=False):
             else:
                 return False
         else:
-            cell_file = [f1 for f1 in [f2 for f2 in os.listdir() if re.findall(r'\.cell$', f2)] if not re.findall(r'-out\.cell$', f1)][0]
-            if args.verbose:
-                print('Found cell file: ' + cell_file)
-            return cell_file
+            for f in os.listdir():
+                if re.search(r'\.cell$', f) and not re.search(r'-out\.cell$', f):
+                    if args.verbose:
+                        print('Found cell file: ' + f)
+                    return f
 
 
 
