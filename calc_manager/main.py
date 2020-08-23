@@ -20,7 +20,8 @@ import tools
 ###########################################
 
 # General.
-alias_to_script     = "calc"
+alias_script        = "calc"
+alias_notification  = "noti"
 
 # Files.
 file_bash_aliases   = "/home/dean/.bash_aliases"
@@ -32,9 +33,6 @@ file_cry_param_temp = "/home/dean/tools/files/param_template_crystal.txt"
 # Directories.
 dir_backup_cell     = "/home/dean/tools/calc_manager/backups/cell/"
 dir_backup_param    = "/home/dean/tools/calc_manager/backups/param/"
-
-# Aliases
-alias_notification  = "noti"
 
 # Error descriptions.
 err_param_exist     = "Param file already exists... Exiting."
