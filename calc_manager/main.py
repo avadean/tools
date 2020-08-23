@@ -23,6 +23,7 @@ import tools
 alias_to_script     = "calc"
 
 # Files.
+file_bash_aliases   = "/home/dean/.bash_aliases"
 file_mol_cell_temp  = "/home/dean/tools/files/cell_template_molecule.txt"
 file_mol_param_temp = "/home/dean/tools/files/param_template_molecule.txt"
 file_cry_cell_temp  = "/home/dean/tools/files/cell_template_crystal.txt"
@@ -31,6 +32,9 @@ file_cry_param_temp = "/home/dean/tools/files/param_template_crystal.txt"
 # Directories.
 dir_backup_cell     = "/home/dean/tools/calc_manager/backups/cell/"
 dir_backup_param    = "/home/dean/tools/calc_manager/backups/param/"
+
+# Aliases
+alias_notification  = "noti"
 
 # Error descriptions.
 err_param_exist     = "Param file already exists... Exiting."
@@ -87,37 +91,57 @@ def check_cell_zero():
         len([f for f in lst if re.findall(r'-out\.cell$', f)]) == 0 else False
 
 
-def get_param_file(args):
-    if check_param_excess():
-        print(err_param_excess)
-        sys.exit(1)
-    elif check_param_zero():
-        if args.strict:
-            print(err_param_zero)
-            sys.exit(1)
+def get_param_file(args, input_prefix=False):
+    if input_prefix:
+        param_file = input_prefix + '.param'
+        if param_file in os.listdir():
+            if args.verbose:
+                print('Found param file: ' + param_file)
+            return param_file
         else:
-            return False
+            print('Cannot file param file ' + param_file + '.')
+            sys.exit(1)
     else:
-        param_file = [f for f in os.listdir() if re.findall(r'\.param$', f)][0]
-        if args.verbose:
-            print('Found param file: ' + param_file)
-        return param_file
+        if check_param_excess():
+            print(err_param_excess)
+            sys.exit(1)
+        elif check_param_zero():
+            if args.strict:
+                print(err_param_zero)
+                sys.exit(1)
+            else:
+                return False
+        else:
+            param_file = [f for f in os.listdir() if re.findall(r'\.param$', f)][0]
+            if args.verbose:
+                print('Found param file: ' + param_file)
+            return param_file
 
-def get_cell_file(args):
-    if check_cell_excess():
-        print(err_cell_excess)
-        sys.exit(1)
-    elif check_cell_zero():
-        if args.strict:
-            print(err_cell_zero)
-            sys.exit(1)
+def get_cell_file(args, input_prefix=False):
+    if input_prefix:
+        cell_file = input_prefix + '.cell'
+        if cell_file in os.listdir():
+            if args.verbose:
+                print('Found cell file: ' + cell_file + '.')
+            return cell_file
         else:
-            return False
+            print('Cannot file cell file ' + cell_file + '.')
+            sys.exit(1)
     else:
-        cell_file = [f1 for f1 in [f2 for f2 in os.listdir() if re.findall(r'\.cell$', f2)] if not re.findall(r'-out\.cell$', f1)][0]
-        if args.verbose:
-            print('Found cell file: ' + cell_file)
-        return cell_file
+        if check_cell_excess():
+            print(err_cell_excess)
+            sys.exit(1)
+        elif check_cell_zero():
+            if args.strict:
+                print(err_cell_zero)
+                sys.exit(1)
+            else:
+                return False
+        else:
+            cell_file = [f1 for f1 in [f2 for f2 in os.listdir() if re.findall(r'\.cell$', f2)] if not re.findall(r'-out\.cell$', f1)][0]
+            if args.verbose:
+                print('Found cell file: ' + cell_file)
+            return cell_file
 
 
 
@@ -129,7 +153,7 @@ def get_cell_file(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='Calculation Manager', description='Manages input and output of calculations with CASTEP')
 
-    parser.add_argument('arg1', action='store', choices=['check', 'create', 'gen', 'generate', 'remove', 'sort', 'test', 'update'])
+    parser.add_argument('arg1', action='store', choices=['check', 'create', 'gen', 'generate', 'query', 'remove', 'run', 'sort', 'test', 'update'])
     parser.add_argument('arg2', action='store', default=False, nargs='?')
     parser.add_argument('arg3', action='store', default=False, nargs='?')
     parser.add_argument('arg4', action='store', default=False, nargs='?')
@@ -144,11 +168,19 @@ if __name__ == '__main__':
 
     parser.add_argument('-E', '--no-extend-float', action='store_true', help='no extending floats with 0s')
 
+    group_comms = parser.add_mutually_exclusive_group()
+    group_comms.add_argument(      '--serial', action='store_true', help='runs serial CASTEP on run')
+    group_comms.add_argument('-m', '--mpi', action='store_true', help='runs MPI CASTEP on run')
+
     group_verbosity = parser.add_mutually_exclusive_group()
     group_verbosity.add_argument('-q', '--quiet', action='store_true', help='decreased verbosity')
     group_verbosity.add_argument('-v', '--verbose', action='store_true', help='increased verbosity')
 
     args = parser.parse_args()
+
+    if not args.serial and not args.mpi:
+        args.serial = True # <- *** Change here for default of comms arch ***
+        #args.mpi   = True
 
     if args.verbose:
         print('Using arguments:')
@@ -268,6 +300,20 @@ if __name__ == '__main__':
             print('Not a valid generate option. Please use cell... Exiting.')
             sys.exit(1)
 
+    elif args.arg1 == 'query':
+        if args.arg2 == 'cell':
+            pass
+        elif args.arg2 == 'param':
+            if args.arg3.upper() in params.dict_keywords:
+                file_param = get_param_file(args)
+                functions.query_param(file_param, args)
+            else:
+                print('Not an acceptable parameter to query... Exiting.')
+                sys.exit(1)
+        else:
+            print('Not a valid query option. Please use cell or param... Exiting.')
+            sys.exit(1)
+
     elif args.arg1 == 'remove':
         if args.arg2 == 'cell':
             if args.arg3:
@@ -295,6 +341,11 @@ if __name__ == '__main__':
         else:
             print('Not a valid remove option. Please use cell or param... Exiting.')
             sys.exit(1)
+
+    elif args.arg1 == 'run':
+        file_cell  = get_cell_file(args, args.arg2)
+        file_param = get_param_file(args, args.arg2)
+        functions.run(file_cell, file_param, file_bash_aliases, alias_notification, args)
 
     elif args.arg1 == 'sort':
         if args.arg2 and args.arg2 not in ['cell', 'param']:
@@ -366,6 +417,6 @@ if __name__ == '__main__':
         for comment in comments:
             print(comment)
 
-
+    sys.exit(0)
 
 

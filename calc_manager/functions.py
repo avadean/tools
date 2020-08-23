@@ -1,5 +1,7 @@
 #! /usr/bin/python3.7
 
+import os
+import subprocess
 import sys
 
 import cells
@@ -161,7 +163,7 @@ def check(cell_file, param_file, args):
             else:
                 print('Warning: ' + prm.param + ' value is not set.')
 
-        if not args.quiet:
+        if args.verbose:
             print(param_file + ' checked.')
 
 
@@ -318,9 +320,34 @@ def gen_from_cif(file_cif, file_cell, args):
                 f.write(symbols[num] + '  ' + x_vals[num] + '  ' + y_vals[num] + '  ' + z_vals[num] + '\n')
             f.write('%ENDBLOCK positions_frac')
 
-    else:
+    elif not args.quiet:
         print('Failed to extract atoms from .cif file... Exiting.')
-        exit(1)
+        sys.exit(1)
+
+
+
+
+def query_param(param_file, args):
+    if not args.no_sort:
+        sort(False, param_file, args)
+
+        prms = params.get_params(param_file, args)
+
+        prm_found = False
+        for prm in prms:
+            if prm.param == args.arg3.upper():
+                prm_found = True
+                print(os.path.basename(os.getcwd()) + ': ' +\
+                      prm.param + ' is ' + ('in' if not prm.active else '') + 'active with value ' + prm.value +\
+                      ((' ' + prm.unit) if prm.unit else '') +\
+                      ((' -> ' + prm.comment) if prm.comment else '') + '.')
+
+        if not prm_found:
+            print(os.path.basename(os.getcwd()) + ': ' + args.arg3.upper() + ' is not set.')
+    else:
+        if not args.quiet:
+            print('Cannot query cell file as it must be sorted beforehand.')
+            sys.exit(1)
 
 
 
@@ -335,6 +362,7 @@ def remove_cell(cell_file, args):
             check(cell_file, False, args)
     else:
         print('Cannot check cell file as it must be sorted beforehand.')
+        sys.exit(1)
 
 
 def remove_param(param_file, args):
@@ -355,21 +383,20 @@ def remove_param(param_file, args):
                 if args.arg4.strip().upper() == value:
                     param_file_lines[num] = ''
                     prm_removed = True
-                    break
+                    if not args.quiet:
+                        print(args.arg3.strip().upper() + ' with value ' + value + ' removed from param file.')
             else:
                 param_file_lines[num] = ''
                 prm_removed = True
-                break
+                if not args.quiet:
+                    print(args.arg3.strip().upper() + ' with value ' + value + ' removed from param file.')
 
     # Write new param file.
     tools.write_file_lines(param_file, param_file_lines, args)
 
-    if not args.quiet:
-        if prm_removed:
-            print(args.arg3.strip().upper() + ' with value ' + value + ' removed from param file.')
-        else:
-            print('Unable to find ' + args.arg3.strip().upper() + (' with value ' + args.arg4.strip().upper() if args.arg4 else '') + ' to remove... Exiting.')
-            exit(1)
+    if not prm_removed and not args.quiet:
+        print('Unable to find ' + args.arg3.strip().upper() + (' with value ' + args.arg4.strip().upper() if args.arg4 else '') + ' to remove... Exiting.')
+        sys.exit(1)
 
     if not args.no_sort:
         sort(False, param_file, args)
@@ -377,6 +404,18 @@ def remove_param(param_file, args):
             check(False, param_file, args)
     elif not args.no_check and not args.quiet:
         print('Cannot check param file as it must be sorted beforehand.')
+
+
+def run(cell_file, param_file, file_bash_aliases, alias_notification, args):
+
+    if cell_file:
+        prefix  = args.arg2 if args.arg2 else cell_file[:-5] # 5 corresponds to the 5 characters in '.cell'.
+        castep  = 'castep.' + ('serial ' if args.serial else 'mpi ') + prefix
+        command = 'bash -c \'. ' + file_bash_aliases + ' ; ' + alias_notification + ' ' + castep + ' &\''
+        result  = subprocess.run(command, check=True, shell=True, text=True)
+    else:
+        print('Cannot run - a cell file is required to run CASTEP... Exiting.')
+        sys.exit(1)
 
 
 def sort(cell_file, param_file, args):
@@ -402,7 +441,7 @@ def sort(cell_file, param_file, args):
                         f.write(line + '\n')
                 f.write('\n')
 
-        if not args.quiet:
+        if args.verbose or args.arg1 == 'sort':
             print(cell_file + ' sorted.')
 
     if param_file:
@@ -426,7 +465,7 @@ def sort(cell_file, param_file, args):
                         + " " + (param.unit if param.unit else "") + ("  ! " + param.comment if param.comment else "") + '\n')
                 added_line = False
 
-        if not args.quiet:
+        if args.verbose or args.arg1 == 'sort':
             print(param_file + ' sorted.')
 
 
