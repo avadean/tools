@@ -119,14 +119,14 @@ def get_comment(string):
 # Does not kick up a fuss if there is no value.
 def get_value(string):
     try:
-        match  = re.findall(r"-?\d+\.?\d*[e,E]?[+-]?\d*", string)[0]
+        match  = re.findall(r"^-?\d+\.?\d*[e,E]?[+-]?\d*", string)[0]
         string = string[len(match):].strip()
         unit   = get_unit(string, match)
         string = string[len(unit):].strip() if unit else string
         return string, match.upper(), unit
     except IndexError:
         try:
-            match = re.findall(r"[\w+]+", string)[0].upper()
+            match = re.findall(r"^[\w+-]+", string)[0].upper()
             string = string[len(match):].strip()
             return string, match, False
         except IndexError:
