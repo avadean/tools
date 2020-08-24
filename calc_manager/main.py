@@ -96,9 +96,11 @@ def get_param_file(args, input_prefix=False):
             if args.verbose:
                 print('Found param file: ' + param_file)
             return param_file
-        else:
-            print('Cannot file param file ' + param_file + '.')
+        elif args.strict:
+            print(err_param_zero)
             sys.exit(1)
+        else:
+            return False
     else:
         if check_param_excess():
             print(err_param_excess)
@@ -123,9 +125,11 @@ def get_cell_file(args, input_prefix=False):
             if args.verbose:
                 print('Found cell file: ' + cell_file + '.')
             return cell_file
-        else:
-            print('Cannot file cell file ' + cell_file + '.')
+        elif args.strict:
+            print(err_param_zero)
             sys.exit(1)
+        else:
+            return False
     else:
         if check_cell_excess():
             print(err_cell_excess)
@@ -405,17 +409,25 @@ if __name__ == '__main__':
         file_cell                 = get_cell_file(args)
         cells, keywords, comments = cells.get_cells(file_cell, args)
 
+        file_param                = get_param_file(args)
+        prms                      = params.get_params(file_param, args)
+
         for cell in cells:
-            for line in cell.block:
-                print(line)
+            if not cell.check_for_error():
+                cell.get_block()
+                for line in cell.block:
+                    print(line)
             print(' ')
 
         for keyword in keywords:
-            print(keyword.keyword)
+            print(('!' if keyword.active else '') + keyword.keyword, keyword.value if keyword.value else '', keyword.unit if keyword.unit else '')
         print('')
 
         for comment in comments:
             print(comment)
+
+        for prm in prms:
+            print(prm.param, prm.value, prm.unit if prm.unit else '')
 
     sys.exit(0)
 
