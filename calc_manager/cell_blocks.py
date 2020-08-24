@@ -3,6 +3,7 @@
 import operator
 
 import cells
+import classes
 import tools
 
 
@@ -45,32 +46,15 @@ class Cell:
             # Currently only have priority in there (so basic=all), but this will be expanded.
 
     def block_initialise(self):
-        self.block = ['%BLOCK ' + self.cell.lower()]
+        self.block = ['%BLOCK    ' + self.cell.upper()]
 
         for comment in self.comments:
             self.block.append('! ' + comment)
 
     def block_finalise(self):
-        self.block.append('%ENDBLOCK ' + self.cell.lower())
+        self.block.append('%ENDBLOCK ' + self.cell.upper())
 
 
-
-
-
-class Kpoint:
-    def __init__(self, x, y, z, weight, comment):
-        self.x       = x
-        self.y       = y
-        self.z       = z
-        self.weight  = weight
-        self.comment = comment
-
-class Vector:
-    def __init__(self, x, y, z, comment):
-        self.x       = x
-        self.y       = y
-        self.z       = z
-        self.comment = comment
 
 
 
@@ -81,6 +65,7 @@ class LATTICE_ABC(Cell):
         super().__init__(cell, cell_lines, active, args)
 
         self.get_lattice()
+        self.check_for_error()
 
     def get_a_b_c(self, ln):
         ln, a    = tools.get_float(ln)
@@ -122,16 +107,16 @@ class LATTICE_ABC(Cell):
                     ln, beta  = tools.get_float(ln)
                     ln, gamma = tools.get_float(ln)
                     comment2  = tools.get_comment(ln)
-                    if a and b and c and alpha and beta and gamma:
+                    if a and b and c and alpha and beta and gamma: # None can be 0.
                         self.lattice = Lattice(a, b, c, alpha, beta, gamma, comment1, comment2)
                     else:
                         return
 
     def check_for_error(self):
         if self.lattice:
-            return False
+            self.error = False
         else:
-            return True
+            self.error = True
 
 
     def get_block(self):
@@ -155,6 +140,7 @@ class LATTICE_CART(Cell):
         super().__init__(cell, cell_lines, active, args)
 
         self.get_latt_vect()
+        self.check_for_error()
 
     def get_vector(self, ln):
         ln, x    = tools.get_float(ln)
@@ -162,7 +148,7 @@ class LATTICE_CART(Cell):
         ln, z    = tools.get_float(ln)
         comment  = tools.get_comment(ln)
         if x and y and z:
-            self.vectors.append(Vector(x, y, z, comment))
+            self.vectors.append(classes.ThreeVector(x, y, z, comment))
             return False
         else:
             return True
@@ -191,9 +177,9 @@ class LATTICE_CART(Cell):
 
     def check_for_error(self):
         if self.vectors:
-            return False
+            self.error = False
         else:
-            return True
+            self.error = True
 
     def get_block(self):
         super().block_initialise()
@@ -217,6 +203,7 @@ class CELL_CONSTRAINTS(Cell):
         super().__init__(cell, cell_lines, active, args)
 
         self.get_constraints()
+        self.check_for_error()
 
     def get_constraints(self):
         class Constraint:
@@ -253,9 +240,9 @@ class CELL_CONSTRAINTS(Cell):
 
     def check_for_error(self):
         if self.constraint:
-            return False
+            self.error = False
         else:
-            return True
+            self.error = True
 
     def get_block(self):
         super().block_initialise()
@@ -275,6 +262,7 @@ class POSITIONS(Cell):
         super().__init__(cell, cell_lines, active, args)
 
         self.get_atom_pos()
+        self.check_for_error()
 
     def get_atom_pos(self):
         class Atom_Pos:
@@ -312,9 +300,9 @@ class POSITIONS(Cell):
 
     def check_for_error(self):
         if self.atoms:
-            return False
+            self.error = False
         else:
-            return True
+            self.error = True
 
     def get_block(self):
         super().block_initialise()
@@ -343,6 +331,7 @@ class EXTERNAL_BFIELD(Cell):
         super().__init__(cell, cell_lines, active, args)
 
         self.get_bfield()
+        self.check_for_error()
 
     def get_bvector(self, ln):
         ln, x    = tools.get_float(ln)
@@ -350,7 +339,7 @@ class EXTERNAL_BFIELD(Cell):
         ln, z    = tools.get_float(ln)
         comment  = tools.get_comment(ln)
         if x and y and z:
-            self.bfield = Vector(x, y, z, comment)
+            self.bfield = classes.ThreeVector(x, y, z, comment)
             return False
         else:
             return True
@@ -378,9 +367,9 @@ class EXTERNAL_BFIELD(Cell):
 
     def check_for_error(self):
         if self.bfield:
-            return False
+            self.error = False
         else:
-            return True
+            self.error = True
 
     def get_block(self):
         super().block_initialise()
@@ -400,6 +389,7 @@ class K_LIST(Cell):
         self.weight = weight
 
         self.get_kpoints()
+        self.check_for_error()
 
     def get_kpoints(self):
         self.kpoints  = []
@@ -415,7 +405,7 @@ class K_LIST(Cell):
 
             comment = tools.get_comment(ln)
             if x and y and z and weight:
-                self.kpoints.append(Kpoint(x, y, z, weight if self.weight else False, comment))
+                self.kpoints.append(classes.Kpoint(x, y, z, weight if self.weight else False, comment))
             else:
                 return
 
@@ -424,9 +414,9 @@ class K_LIST(Cell):
 
     def check_for_error(self):
         if self.kpoints:
-            return False
+            self.error = False
         else:
-            return True
+            self.error = True
 
     def get_block(self):
         super().block_initialise()
@@ -506,6 +496,7 @@ class SPECIES_POT(Cell):
         super().__init__(cell, cell_lines, active, args)
 
         self.get_spec_pot()
+        self.check_for_error()
 
     def get_spec_pot(self):
         class Pot:
@@ -531,11 +522,11 @@ class SPECIES_POT(Cell):
 
     def check_for_error(self):
         if self.num == 0:
-            return False
+            self.error = False
         elif self.num:
-            return False
+            self.error = False
         else:
-            return True
+            self.error = True
 
     def get_block(self):
         super().block_initialise()
@@ -550,6 +541,100 @@ class SPECIES_POT(Cell):
             #                  ('! ' + pot.comment if pot.comment else ''))
 
         super().block_finalise()
+
+
+class SYMMETRY_OPS(Cell):
+    def __init__(self, cell, cell_lines, active, args):
+        super().__init__(cell, cell_lines, active, args)
+
+        self.get_symmetry_ops()
+        self.check_for_error()
+
+    def get_symmetry_ops(self):
+        class SymmetryOp:
+            def __init__(self, rotation, translation):
+                self.rotation    = rotation      # ThreeMatrix
+                self.translation = translation   # ThreeVector
+
+        self.symmetry_ops = []
+        self.num          = 0
+
+        if len(self.block_lines) % 4 != 0:
+            return
+
+        for n in range(0, len(self.block_lines) // 4, 4): # 4 is the ThreeMatrix (rotation) and ThreeVector (translation).
+            ln       = self.block_lines[n]
+            ln, xx   = tools.get_float(ln)
+            ln, xy   = tools.get_float(ln)
+            ln, xz   = tools.get_float(ln)
+            comment1 = tools.get_comment(ln)
+
+            ln       = self.block_lines[n+1]
+            ln, yx   = tools.get_float(ln)
+            ln, yy   = tools.get_float(ln)
+            ln, yz   = tools.get_float(ln)
+            comment2 = tools.get_comment(ln)
+
+            ln       = self.block_lines[n+2]
+            ln, zx   = tools.get_float(ln)
+            ln, zy   = tools.get_float(ln)
+            ln, zz   = tools.get_float(ln)
+            comment3 = tools.get_comment(ln)
+
+            ln       = self.block_lines[n+3]
+            ln, x    = tools.get_float(ln)
+            ln, y    = tools.get_float(ln)
+            ln, z    = tools.get_float(ln)
+            comment  = tools.get_comment(ln)
+
+            comments = [comment1, comment2, comment3]
+
+            if xx is not False and xy is not False and xz is not False and \
+               yx is not False and yy is not False and yz is not False and \
+               zx is not False and zy is not False and zz is not False:
+                self.symmetry_ops.append(SymmetryOp(classes.ThreeMatrix(xx, xy, xz, yx, yy, yz, zx, zy, zz, comments),
+                                                    classes.ThreeVector(x, y, z, comment)))
+            else:
+                return
+
+        self.num = len(self.symmetry_ops)
+
+        if self.num == 0:
+            self.symmetry_ops = False
+
+    def check_for_error(self):
+        if self.symmetry_ops:
+            self.error = False
+        else:
+            self.error = True
+
+    def get_block(self):
+        super().block_initialise()
+
+        x_vals, y_vals, z_vals = [], [], []
+        for i in range(self.num):
+            matrix = self.symmetry_ops[i].rotation
+            vector = self.symmetry_ops[i].translation
+
+            x_vals += [matrix.xx, matrix.yx, matrix.zx, vector.x]
+            y_vals += [matrix.xy, matrix.yy, matrix.zy, vector.y]
+            z_vals += [matrix.xz, matrix.yz, matrix.zz, vector.z]
+
+        x_vals = tools.get_spaced_column(x_vals, self.args.no_extend_float)
+        y_vals = tools.get_spaced_column(y_vals, self.args.no_extend_float)
+        z_vals = tools.get_spaced_column(z_vals, self.args.no_extend_float)
+
+        for num in range(0, 4 * self.num, 4):
+            op = self.symmetry_ops[num//4]
+            self.block.append(x_vals[num]   + '  ' + y_vals[num]   + '  ' + z_vals[num]   + ('  ! ' + op.rotation.comments[0] if op.rotation.comments[0] else ''))
+            self.block.append(x_vals[num+1] + '  ' + y_vals[num+1] + '  ' + z_vals[num+1] + ('  ! ' + op.rotation.comments[1] if op.rotation.comments[1] else ''))
+            self.block.append(x_vals[num+2] + '  ' + y_vals[num+2] + '  ' + z_vals[num+2] + ('  ! ' + op.rotation.comments[2] if op.rotation.comments[2] else ''))
+            self.block.append(x_vals[num+3] + '  ' + y_vals[num+3] + '  ' + z_vals[num+3] + ('  ! ' + op.translation.comment  if op.translation.comment  else ''))
+
+        super().block_finalise()
+
+
+
 
 
 
