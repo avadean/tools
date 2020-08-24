@@ -13,7 +13,195 @@ import tools
 def check(cell_file, param_file, args):
 
     if cell_file:
-        pass # Do cell check.
+        def get_cell(cell, cell_list):
+            for cll in cell_list:
+                if cll.cell == cell:
+                    return cll
+
+        def get_keyword(keyword, keyword_list):
+            for kywrd in keyword_list:
+                if kywrd.keyword == keyword:
+                    return kywrd
+
+        def is_cell_set(cell, cell_list):
+            return True if cell in [cll.cell for cll in cell_list] else False
+
+        def is_keyword_set(keyword, keyword_list):
+            return True if keyword in [kywrd.keyword for kywrd in keyword_list] else False
+
+        def block(cell, cell_list):
+            return get_cell(cell, cell_list).blocks[0]
+
+        def value(keyword, keyword_list):
+            return get_keyword(keyword, keyword_list).values[0]
+
+        def unit(keyword, keyword_list):
+            return get_keyword(keyword, keyword_list).units[0]
+
+        class CellBasic:
+            def __init__(self, cell, block, error, known):
+                self.cell     = cell
+                self.blocks   = [block]
+                #self.required = required
+                self.error    = error
+                self.known    = known
+
+            def add_block(self, block):
+                self.blocks.append(block)
+
+        class KeywordBasic:
+            def __init__(self, keyword, value, unit, required, allowed_values, is_string, is_bool, is_float, is_int, is_vector, has_unit, known):
+                self.keyword        = keyword
+                self.values         = [value]
+                self.units          = [unit]
+                self.required       = required
+                self.allowed_values = allowed_values
+                self.is_string      = is_string
+                self.is_bool        = is_bool
+                self.is_float       = is_float
+                self.is_int         = is_int
+                self.is_vector      = is_vector
+                self.has_unit       = has_unit
+                self.known          = known
+
+            def add_value_unit(self, value, unit):
+                self.values.append(value)
+                self.units.append(unit)
+
+        def get_active_cell_keyword_summary(clls, keywords, cell_file, args):
+            # Get info for active cells and keywords in param file.
+            clls_sum, keywords_sum = [], []
+
+            for cell in clls:
+                if cell.active:
+                    if is_cell_set(cell.cell, clls_sum):
+                        get_cell(cell.cell, clls_sum).add_block(cell.block) # If the cell already exists then add its block.
+                    else: # Otherwise, create a new Basic Cell for it.
+                        clls_sum.append(CellBasic(cell.cell, cell.block, cell.error, cell.known))
+
+            for keyword in keywords:
+                if keyword.active:
+                    if is_keyword_set(keyword.keyword, keywords_sum): # If the keyword already exists then add its values.
+                        get_keyword(keyword.keyword, keywords_sum).add_value_unit(keyword.value, keyword.unit)
+                    else: # Otherwise, create a new Basic Keyword for it.
+                        keywords_sum.append(KeywordBasic(keyword.keyword, keyword.value, keyword.unit, keyword.required, keyword.allowed_values,\
+                                                         keyword.is_string, keyword.is_bool, keyword.is_float, keyword.is_int,\
+                                                         keyword.is_vector, keyword.has_unit, keyword.known))
+
+
+            if args.verbose:
+                print('Found blocks for active cells in ' + cell_file)
+
+            return clls_sum, keywords_sum
+
+        def get_other_cells_keywords(cell_list, keyword_list, cell_file, args):
+            cell_keyword_names   = [c.cell for c in cell_list] + [k.keyword for k in keyword_list]
+            other_cells_keywords = {}
+            for cell_keyword in cells.dict_keywords:
+                if cell_keyword not in cell_keyword_names:
+                    other_cells_keywords[cell_keyword] = cells.dict_keywords[cell_keyword]
+            if args.verbose:
+                print('Got dict of cells and keywords not active in ' + cell_file)
+
+            return other_cells_keywords
+
+        # Get cells, keywords and comments.
+        clls, keywords, comments = cells.get_cells(cell_file, args)
+
+        # Get info for active cells and keywords in cell file.
+        clls_sum, keywords_sum = get_active_cell_keyword_summary(clls, keywords, cell_file, args)
+
+        # Get info for cells and keywords that are not in (or not active in) the cell file.
+        other_clls_keywords = get_other_cells_keywords(clls_sum, keywords_sum, cell_file, args)
+
+        # TODO: Check for any unspecified cells or keywords that should probably be specified.
+
+        for cll in clls_sum:
+            # Check for any cells that are not known.
+            if not cll.known:
+                print('Warning: ' + cll.cell + ' is not a known cell.')
+
+            # Check if cell has multiple entries.
+            if len(cll.blocks) > 1:
+                print('Warning: ' + cll.cell + ' is set ' + str(len(cll.blocks)) + ' times. Only the first instance will be used for the subsequent checks.')
+
+            # Check for any errors.
+            if cll.error:
+                print('Warning: ' + cll.cell + ' has an error.')
+
+            # TODO: Unusual and specific checks.
+
+        for keyword in keywords_sum:
+            # Check for any keywords that are not known.
+            if not keyword.known:
+                print('Warning: ' + keyword.keyword + ' is not a known keyword.')
+
+            # Check if keyword has multiple entries.
+            if len(keyword.values) > 1:
+                print('Warning: ' + keyword.keyword + ' is set ' + str(len(keyword.values)) + ' times. Only the first instance will be used for the subsequent checks.')
+                for num, val in enumerate(keyword.values):
+                    print('         ' + keyword.keyword + ' : ' + val + ((' ' + keyword.units[num]) if keyword.units[num] else ''))
+
+            # Only do analysis if keyword is actually set.
+            if value(keyword.keyword, keywords_sum):
+                # Check keyword is of its allowed values.
+                if keyword.is_string or keyword.is_bool:
+                    if value(keyword.keyword, keywords_sum) not in keyword.allowed_values:
+                        print('Warning: value of \'' + value(keyword.keyword, keywords_sum) + '\' is not allowed for ' + keyword.keyword + '. The allowed value/s is/are:')
+                        for val in keyword.allowed_values:
+                            print('  ' + str(val))
+                elif keyword.is_float:
+                    if keyword.is_vector:
+                        for element in ['x', 'y', 'z']:
+                            try:
+                                if float(eval('value(keyword.keyword, keywords_sum).' + element)) > keyword.allowed_values[0] or float(eval('value(keyword.keyword, keywords_sum).' + element)) < keyword.allowed_values[1]: # [0] is max value allowed and [1] is min value allowed for floats and ints.
+                                    print('Value of \'' + eval('value(keyword.keyword, keywords_sum).' + element) + '\'' + ((' ' + unit(keyword.keyword, keywords_sum)) if unit(keyword.keyword, keywords_sum) else '') + ' is not allowed for ' + keyword.keyword + '. The max and min values (respectively) are:')
+                                    print('  ' + str(keyword.allowed_values[0]))
+                                    print('  ' + str(keyword.allowed_values[1]))
+                            except ValueError:
+                                print('Warning: ValueError with ' + eval('value(keyword.keyword, keywords_sum).' + element) + ' for ' + keyword.keyword + '. Value should be a float.')
+                    else:
+                        try:
+                            if float(value(keyword.keyword, keywords_sum)) > keyword.allowed_values[0] or float(value(keyword.keyword, keywords_sum)) < keyword.allowed_values[1]: # [0] is max value allowed and [1] is min value allowed for floats and ints.
+                                print('Value of \'' + value(keyword.keyword, keywords_sum) + '\'' + ((' ' + unit(keyword.keyword, keywords_sum)) if unit(keyword.keyword, keywords_sum) else '') + ' is not allowed for ' + keyword.keyword + '. The max and min values (respectively) are:')
+                                print('  ' + str(keyword.allowed_values[0]))
+                                print('  ' + str(keyword.allowed_values[1]))
+                        except ValueError:
+                            print('Warning: ValueError with ' + value(keyword.keyword, keywords_sum) + ' for ' + keyword.keyword + '. Value should be a float.')
+                elif keyword.is_int:
+                    if keyword.is_vector:
+                        for element in ['x', 'y', 'z']:
+                            try:
+                                if int(eval('value(keyword.keyword, keywords_sum).' + element)) > keyword.allowed_values[0] or int(eval('value(keyword.keyword, keywords_sum).' + element)) < keyword.allowed_values[1]: # [0] is max value allowed and [1] is min value allowed for floats and ints.
+                                    print('Warning: value of \'' + eval('value(keyword.keyword, keywords_sum).' + element) + '\'' + ((' ' + unit(keyword.keyword, keywords_sum)) if unit(keyword.keyword, keywords_sum) else '') + ' is not allowed for ' + keyword.keyword + '. The max and min values (respectively) are:')
+                                    print('  ' + str(keyword.allowed_values[0]))
+                                    print('  ' + str(keyword.allowed_values[1]))
+                            except ValueError:
+                                print('Warning: ValueError with ' + eval('value(keyword.keyword, keywords_sum).' + element) + ' for ' + keyword.keyword + '. Value should be an int.')
+                    else:
+                        try:
+                            if int(value(keyword.keyword, keywords_sum)) > keyword.allowed_values[0] or int(value(keyword.keyword, keywords_sum)) < keyword.allowed_values[1]: # [0] is max value allowed and [1] is min value allowed for floats and ints.
+                                print('Warning: value of \'' + value(keyword.keyword, keywords_sum) + '\'' + ((' ' + unit(keyword.keyword, keywords_sum)) if unit(keyword.keyword, keywords_sum) else '') + ' is not allowed for ' + keyword.keyword + '. The max and min values (respectively) are:')
+                                print('  ' + str(keyword.allowed_values[0]))
+                                print('  ' + str(keyword.allowed_values[1]))
+                        except ValueError:
+                            print('Warning: ValueError with ' + value(keyword.keyword, keywords_sum) + ' for ' + keyword.keyword + '. Value should be an int.')
+
+                # Check keywords that should have units, do.
+                if not unit(keyword.keyword, keywords_sum) and keyword.has_unit:
+                    print('Warning: ' + keyword.keyword + ' requires a unit. Default will be by CASTEP.')
+
+
+                # TODO: Unusual and specific checks.
+
+
+            else:
+                print('Warning: ' + keyword.keyword + ' value is not set.')
+
+        if args.verbose or args.arg1 == 'check':
+            print(cell_file + ' checked.')
+
+
 
     if param_file:
         def get_param(param, param_list):
@@ -89,7 +277,7 @@ def check(cell_file, param_file, args):
         # Get info for params that are not in (or not active in) the param file.
         other_prms = get_other_params(params_sum, param_file, args)
 
-        # Check for any unspecified params that probably should be specified.
+        # Check for any unspecified params that should probably be specified.
         for prm in other_prms:
             if other_prms[prm]['required']:
                 print('Warning: ' + prm + ' has not been set. Default is ' + other_prms[prm]['default'] + '.')
@@ -163,7 +351,7 @@ def check(cell_file, param_file, args):
             else:
                 print('Warning: ' + prm.param + ' value is not set.')
 
-        if args.verbose:
+        if args.verbose or args.arg1 == 'check':
             print(param_file + ' checked.')
 
 
@@ -427,19 +615,35 @@ def sort(cell_file, param_file, args):
         if args.verbose:
             print('Sorting ' + cell_file)
         with open(cell_file, 'w') as f:
-            priority_level = 1.0
-            added_line = False
             for cell in clls:
-                if cell.check_for_error(): # If we have an error in the cell then re-write the block unchanged.
-                    f.write('%BLOCK ' + cell.cell.lower() + '\n')
+                if cell.error: # If we have an error in the cell then re-write the block unchanged.
+                    f.write('%BLOCK ' + cell.cell.upper() + '\n')
                     for line in cell.lines:
                         f.write(line + '\n')
-                    f.write('%ENDBLOCK ' + cell.cell.lower() + '\n')
+                    f.write('%ENDBLOCK ' + cell.cell.upper() + '\n')
                 else: # Otherwise write a neat version of the block.
                     cell.get_block()
                     for line in cell.block:
                         f.write(line + '\n')
                 f.write('\n')
+
+            priority_level = 1.0
+            added_line = False
+            for num, keyword in enumerate(keywords, 1):
+                #while keyword.priority >= priority_level:
+                while priority_level < keyword.priority:
+                    priority_level += 1.0
+                    if num != 1 and not added_line:
+                        f.write('\n')
+                        added_line = True
+                if keyword.is_vector:
+                    f.write(("!" if not keyword.active else "") + keyword.keyword_spaces + " : " +\
+                            (str(keyword.value.x) + '  ' + str(keyword.value.y) + '  ' + str(keyword.value.z) if keyword.value else "")\
+                            + " " + (keyword.unit if keyword.unit else "") + ("  ! " + keyword.comment if keyword.comment else "") + '\n')
+                else:
+                    f.write(("!" if not keyword.active else "") + keyword.keyword_spaces + " : " + (str(keyword.value) if keyword.value else "")\
+                            + " " + (keyword.unit if keyword.unit else "") + ("  ! " + keyword.comment if keyword.comment else "") + '\n')
+                added_line = False
 
         if args.verbose or args.arg1 == 'sort':
             print(cell_file + ' sorted.')
