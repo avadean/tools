@@ -3,6 +3,7 @@
 import re
 import operator
 
+import classes
 import tools
 import cell_blocks
 block_module = 'cell_blocks'
@@ -20,27 +21,37 @@ dict_keywords = {
 
     'SPECIES_POT'             : { 'priority' : 3.1 },
 
-    'EXTERNAL_BFIELD'         : { 'priority' : 4.1 },
+    'SYMMETRY_OPS'            : { 'priority' : 4.1 },
+
+    'EXTERNAL_BFIELD'         : { 'priority' : 5.1 },
 
     # Kpoints.
-    'KPOINT_LIST'             : { 'priority' : 5.111 },
-    'KPOINTS_LIST'            : { 'priority' : 5.112 },
-    'BS_KPOINT_LIST'          : { 'priority' : 5.121 },
-    'BS_KPOINTS_LIST'         : { 'priority' : 5.122 },
-    'PHONON_KPOINT_LIST'      : { 'priority' : 5.131 },
-    'PHONON_KPOINTS_LIST'     : { 'priority' : 5.132 },
-    'PHONON_FINE_KPOINT_LIST' : { 'priority' : 5.133 },
-    'OPTICS_KPOINT_LIST'      : { 'priority' : 5.141 },
-    'OPTICS_KPOINTS_LIST'     : { 'priority' : 5.142 },
-    'MAGRES_KPOINT_LIST'      : { 'priority' : 5.151 },
-    'SUPERCELL_KPOINT_LIST'   : { 'priority' : 5.161 },
-    'SUPERCELL_KPOINTS_LIST'  : { 'priority' : 5.162 },
-    'SPECTRAL_KPOINT_LIST'    : { 'priority' : 5.171 },
-    'SPECTRAL_KPOINTS_LIST'   : { 'priority' : 5.172 },
+    'KPOINT_LIST'             : { 'priority' : 6.111 },
+    'KPOINTS_LIST'            : { 'priority' : 6.112 },
+    'BS_KPOINT_LIST'          : { 'priority' : 6.121 },
+    'BS_KPOINTS_LIST'         : { 'priority' : 6.122 },
+    'PHONON_KPOINT_LIST'      : { 'priority' : 6.131 },
+    'PHONON_KPOINTS_LIST'     : { 'priority' : 6.132 },
+    'PHONON_FINE_KPOINT_LIST' : { 'priority' : 6.133 },
+    'OPTICS_KPOINT_LIST'      : { 'priority' : 6.141 },
+    'OPTICS_KPOINTS_LIST'     : { 'priority' : 6.142 },
+    'MAGRES_KPOINT_LIST'      : { 'priority' : 6.151 },
+    'SUPERCELL_KPOINT_LIST'   : { 'priority' : 6.161 },
+    'SUPERCELL_KPOINTS_LIST'  : { 'priority' : 6.162 },
+    'SPECTRAL_KPOINT_LIST'    : { 'priority' : 6.171 },
+    'SPECTRAL_KPOINTS_LIST'   : { 'priority' : 6.172 },
 
     # Keywords
-    'FIX_ALL_CELL'            : { 'priority' : 6.1 },
-    'SYMMETRY_GENERATE'       : { 'priority' : 6.2 }
+    'KPOINT_MP_SPACING'       : { 'priority' : 7.1 , 'required' : False, 'default' : '0.1 1/Ang'                         , 'is_string' : False, 'is_bool' : False, 'is_float' : True , 'is_int' : False, 'is_vector' : False, 'has_unit' : True , 'allowed_values' : [float("inf"), 0.0]},
+    'KPOINTS_MP_SPACING'      : { 'priority' : 7.1 , 'required' : False, 'default' : '0.1 1/Ang'                         , 'is_string' : False, 'is_bool' : False, 'is_float' : True , 'is_int' : False, 'is_vector' : False, 'has_unit' : True , 'allowed_values' : [float("inf"), 0.0]},
+    'KPOINT_MP_GRID'          : { 'priority' : 7.2 , 'required' : False, 'default' : 'determined from KPOINTS_MP_SPACING', 'is_string' : False, 'is_bool' : False, 'is_float' : False, 'is_int' : True , 'is_vector' : True , 'has_unit' : False, 'allowed_values' : [float("inf"), 0]},
+    'KPOINTS_MP_GRID'         : { 'priority' : 7.2 , 'required' : False, 'default' : 'determined from KPOINTS_MP_SPACING', 'is_string' : False, 'is_bool' : False, 'is_float' : False, 'is_int' : True , 'is_vector' : True , 'has_unit' : False, 'allowed_values' : [float("inf"), 0]},
+    'KPOINT_MP_OFFSET'        : { 'priority' : 7.3 , 'required' : False, 'default' : '0.0, 0.0, 0.0'                     , 'is_string' : False, 'is_bool' : False, 'is_float' : True , 'is_int' : False, 'is_vector' : True , 'has_unit' : False, 'allowed_values' : [float("inf"), float("-inf")]},
+    'KPOINTS_MP_OFFSET'       : { 'priority' : 7.3 , 'required' : False, 'default' : '0.0, 0.0, 0.0'                     , 'is_string' : False, 'is_bool' : False, 'is_float' : True , 'is_int' : False, 'is_vector' : True , 'has_unit' : False, 'allowed_values' : [float("inf"), float("-inf")]},
+    'FIX_ALL_CELL'            : { 'priority' : 7.4 , 'required' : False, 'default' : 'FALSE'                             , 'is_string' : False, 'is_bool' : True , 'is_float' : False, 'is_int' : False, 'is_vector' : False, 'has_unit' : False, 'allowed_values' : ['T', 'F', 'TRUE', 'FALSE']},
+    'FIX_COM'                 : { 'priority' : 7.5 , 'required' : False, 'default' : 'FALSE'                             , 'is_string' : False, 'is_bool' : True , 'is_float' : False, 'is_int' : False, 'is_vector' : False, 'has_unit' : False, 'allowed_values' : ['T', 'F', 'TRUE', 'FALSE']},
+    'SYMMETRY_TOL'            : { 'priority' : 7.6 , 'required' : False, 'default' : '0.01 Ang'                          , 'is_string' : False, 'is_bool' : False, 'is_float' : True , 'is_int' : False, 'is_vector' : False, 'has_unit' : True , 'allowed_values' : [float("inf"), 0.0]        },
+    'SYMMETRY_GENERATE'       : { 'priority' : 7.7 , 'required' : False, 'default' : 'FALSE'                             , 'is_string' : False, 'is_bool' : True , 'is_float' : False, 'is_int' : False, 'is_vector' : False, 'has_unit' : False, 'allowed_values' : ['T', 'F', 'TRUE', 'FALSE']}
 }
 
 
@@ -50,23 +61,39 @@ dict_keywords = {
 
 class Keyword:
     def __init__(self, keyword, value, active, unit, comment):
-        self.keyword = keyword
-        self.value   = value
-        self.active  = active
-        self.unit    = unit
-        self.comment = comment
+        self.keyword         = keyword
+        self.keyword_str_len = len(self.keyword)
+        self.value           = value
+        self.active          = active
+        self.unit            = unit
+        self.comment         = comment
 
         self.get_info()
+
+    def get_spaces(self, max_len_string):
+        self.keyword_spaces = self.keyword + ( (max_len_string - self.keyword_str_len) * " " )
 
     def get_info(self):
         if self.keyword in dict_keywords:
             self.known = True
-            self.priority = operator.itemgetter('priority')(dict_keywords[self.keyword])
+            self.priority, self.required, self.allowed_values,\
+                self.is_string, self.is_bool, self.is_float, self.is_int,\
+                self.is_vector, self.has_unit = operator.itemgetter('priority', 'required', 'allowed_values',\
+                                                                    'is_string', 'is_bool', 'is_float', 'is_int',\
+                                                                    'is_vector', 'has_unit')(dict_keywords[self.keyword])
         else:
-            self.known    = False
+            self.known          = False
 
             # Default values.
-            self.priority = 99.0
+            self.priority       = 99.0
+            self.required       = False
+            self.allowed_values = []
+            self.is_string      = False
+            self.is_bool        = False
+            self.is_float       = False
+            self.is_int         = False
+            self.is_vector      = False
+            self.has_unit       = False
 
 
 def get_cells(file_cell, args):
@@ -177,14 +204,24 @@ def get_cells(file_cell, args):
             # If not we have a comment or keyword.
             else:
                 if cell.upper() in dict_keywords:
-                    keywords.append(Keyword(cell.upper(), value.upper() if value else value, active, unit, comment))
+                    if type(value) is classes.ThreeVector:
+                        keywords.append(Keyword(cell.upper(), value, active, unit, comment))
+                    else:
+                        keywords.append(Keyword(cell.upper(), value.upper() if value else value, active, unit, comment))
                 else:
-                    comments.append(ln_orig[1:] if ln_orig[0] == "!" else ln_orig)
+                    comments.append(ln_orig[1:].strip() if ln_orig[0] in ["!", "#"] else ln_orig)
 
         num += 1
 
     if args.verbose:
         print('Got cells for cell file ' + file_cell)
+
+    # Update keywords with extra spaces for formatted alignment.
+    max_keyword_str_len = max([keyword.keyword_str_len for keyword in keywords], default=0)
+    for keyword in keywords:
+        keyword.get_spaces(max_keyword_str_len)
+    if args.verbose:
+        print('Found keyword spaces for ' + file_cell)
 
     cells.sort(key=lambda cell: cell.priority)
     keywords.sort(key=lambda keyword: keyword.priority)
