@@ -1,13 +1,14 @@
 #! /usr/bin/python3.7
 
 import re
+import classes
 
 
 def get_cell(string):
     in_cell = False
 
     try:
-        active = False if string[0] == "!" else True
+        active = False if string[0] in ["!", "#"] else True
     except IndexError:
         return string, in_cell, False, False
 
@@ -31,7 +32,7 @@ def get_cell(string):
 
 #def get_line(string):
 #    try:
-#        active = False if string[0] == "!" else True
+#        active = False if string[0] in ["!", "#"] else True
 #    except IndexError:
 #        return False, False
 #
@@ -40,7 +41,7 @@ def get_cell(string):
 
 def get_param(string):
     try:
-        active = False if string[0] == "!" else True
+        active = False if string[0] in ["!", "#"] else True
     except IndexError:
         return string, False, False
 
@@ -57,7 +58,7 @@ def get_param(string):
         return string[len(match):].strip(), match, active
 
 
-def get_unit(string, match):
+def get_unit(string):
     try:
         return re.findall(r"\w+", string)[0]
     except IndexError:
@@ -66,7 +67,7 @@ def get_unit(string, match):
 
 def get_active(string):
     try:
-        active = False if string[0] == "!" else True
+        active = False if string[0] in ["!", "#"] else True
     except IndexError:
         return False, False
 
@@ -111,7 +112,7 @@ def get_int(string):
 # Lines that are pure comments do not work.
 def get_comment(string):
     try:
-        return re.findall(r".*", string[1:])[0].strip() if string[0] == "!" else False
+        return re.findall(r".*", string[1:])[0].strip() if string[0] in ["!", "#"] else False
     except IndexError:
         return False
 
@@ -119,18 +120,29 @@ def get_comment(string):
 # Does not kick up a fuss if there is no value.
 def get_value(string):
     try:
-        match  = re.findall(r"^-?\d+\.?\d*[e,E]?[+-]?\d*", string)[0]
-        string = string[len(match):].strip()
-        unit   = get_unit(string, match)
-        string = string[len(unit):].strip() if unit else string
-        return string, match.upper(), unit
+        match1 = re.findall(r"^-?\d+\.?\d*[e,E]?[+-]?\d*", string)[0] # Try for a float.
+        string = string[len(match1):].strip()
     except IndexError:
         try:
-            match = re.findall(r"^[\w+-]+", string)[0].upper()
-            string = string[len(match):].strip()
-            return string, match, False
+            match1 = re.findall(r"^[\w+-]+", string)[0].upper() # If not then try for a string.
+            string = string[len(match1):].strip()
+            return string, match1, False
         except IndexError:
-            return string, False, False
+            return string, False, False # If not then bad.
+
+    try:
+        match2 = re.findall(r"^-?\d+\.?\d*[e,E]?[+-]?\d*", string)[0] # Try for another float in case it's a vector.
+        string = string[len(match2):].strip()
+        match3 = re.findall(r"^-?\d+\.?\d*[e,E]?[+-]?\d*", string)[0] # Final part of vector.
+        string = string[len(match3):].strip()
+        unit   = get_unit(string)
+        string = string[len(unit):].strip() if unit else string
+        return string, classes.ThreeVector(match1.upper(), match2.upper(), match3.upper(), False), unit
+
+    except IndexError:
+        unit   = get_unit(string) # If we couldn't find a vector then it must just be a float, so try for a unit.
+        string = string[len(unit):].strip() if unit else string
+        return string, match1.upper(), unit
 
 
 def get_file(string):
