@@ -66,7 +66,7 @@ dict_keywords = {
     # Extra.
     'CONTINUATION'              : { 'priority' : 11.1, 'required' : False, 'default' : 'NULL'                       , 'is_string' : True , 'is_bool' : False, 'is_float' : False, 'is_int' : False, 'has_unit' : False, 'allowed_values' : ['DEFAULT', 'any file with name up to 255 characters']},
     'IPRINT'                    : { 'priority' : 11.2, 'required' : False, 'default' : '1'                          , 'is_string' : True , 'is_bool' : False, 'is_float' : False, 'is_int' : False, 'has_unit' : False, 'allowed_values' : ['1', '2', '3']},
-    'RAND_SEED'                 : { 'priority' : 11.3, 'required' : False, 'default' : '0'                          , 'is_string' : False, 'is_bool' : False, 'is_float' : False, 'is_int' : True , 'has_unit' : False, 'allowed_values' : [float("-inf"), float("inf")]},
+    'RAND_SEED'                 : { 'priority' : 11.3, 'required' : False, 'default' : '0'                          , 'is_string' : False, 'is_bool' : False, 'is_float' : False, 'is_int' : True , 'has_unit' : False, 'allowed_values' : [float("inf"), float("-inf")]},
     'COMMENT'                   : { 'priority' : 11.4, 'required' : False, 'default' : '(empty)'                    , 'is_string' : True , 'is_bool' : False, 'is_float' : False, 'is_int' : False, 'has_unit' : False, 'allowed_values' : ['up to 80 characters']}
 }
 
@@ -94,7 +94,7 @@ class Param:
                                                     'is_string', 'is_bool', 'is_float', 'is_int',\
                                                     'has_unit')(dict_keywords[self.param])
         else:
-            self.known = False
+            self.known          = False
 
             # Default values.
             self.priority       = 99.0
