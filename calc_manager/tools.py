@@ -84,7 +84,6 @@ def get_string(string):
             match = re.findall(r"^\w+", string)[0]
         except IndexError:
             return string, False
-
     return string[len(match):].strip(), match
 
 def get_float(string):
@@ -154,6 +153,17 @@ def get_file(string):
         return string, False
 
 
+def get_species_pot_parts(string):
+    try:
+        line_no_comment = re.findall(r"^.*!", string)[0]
+        line_no_comment = line_no_comment[:-1].strip()
+    except IndexError:
+        line_no_comment = string
+
+    return line_no_comment.split()  #line_no_comment.split(' ')
+    #list(filter(('').__ne__, parts))
+
+
 def unit_convert(typ, value, unit):
     if unit:
         factor = {
@@ -202,11 +212,11 @@ def get_atomic_sym(number):
     return element(number).symbol
 
 
-def get_spaced_column(column, no_extend_floats):
+def get_spaced_column(column, no_extend_floats, no_floats=False):
     class SpacedString:
-        def __init__(self, string):
+        def __init__(self, string, no_floats):
             self.string        = string
-            self.split_string  = self.string.split('.')
+            self.split_string  = self.string.split('.') if not no_floats else [self.string]
             self.spaced_string = False
 
             if len(self.split_string) == 2:
@@ -219,28 +229,29 @@ def get_spaced_column(column, no_extend_floats):
             self.len_pref, self.len_suff = len(self.pref), len(self.suff)
             self.is_digit                = self.pref.isdigit()
 
-        def get_spaced_string(self, max_pref, max_suff, need_extra_digit, no_extend_floats):
-            self.spaced_string = (' ' * (max_pref - self.len_pref)) + self.pref +\
-                ('.' if self.dot else ('.' if self.is_digit and not no_extend_floats else ' ') if need_extra_digit else '') +\
-                self.suff + (('0' if self.is_digit and not no_extend_floats else ' ') * (max_suff - self.len_suff))
+        def get_spaced_string(self, max_pref, max_suff, need_extra_digit, no_extend_floats, no_floats):
+            if no_floats:
+                self.spaced_string = self.pref + (' ' * (max_pref - self.len_pref)) +\
+                    ('.' if self.dot else ('.' if self.is_digit and not no_extend_floats else ' ') if need_extra_digit else '') +\
+                    (' ' * (max_suff - self.len_suff)) + self.suff
+            else:
+                self.spaced_string = (' ' * (max_pref - self.len_pref)) + self.pref +\
+                    ('.' if self.dot else ('.' if self.is_digit and not no_extend_floats else ' ') if need_extra_digit else '') +\
+                    self.suff + (('0' if self.is_digit and not no_extend_floats else ' ') * (max_suff - self.len_suff))
 
-    spaced_strings = [SpacedString(string) for string in column]
+    if not no_floats:
+        no_extend_floats = True
+
+    spaced_strings = [SpacedString(string, no_floats) for string in column]
 
     max_pref         = max([st.len_pref for st in spaced_strings], default=0)
     max_suff         = max([st.len_suff for st in spaced_strings], default=0)
     need_extra_digit = any([st.dot for st in spaced_strings]) # Digit could be extra '.' or extra ' '
 
     for string in spaced_strings:
-        string.get_spaced_string(max_pref, max_suff, need_extra_digit, no_extend_floats)
+        string.get_spaced_string(max_pref, max_suff, need_extra_digit, no_extend_floats, no_floats)
 
     return [string.spaced_string for string in spaced_strings]
-
-
-
-
-
-
-
 
 
 

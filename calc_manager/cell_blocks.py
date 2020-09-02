@@ -500,21 +500,33 @@ class SPECIES_POT(Cell):
 
     def get_spec_pot(self):
         class Pot:
-            def __init__(self, element, fil, comment):
-                self.element = element
-                self.fil     = fil
+            def __init__(self, part1, part2, comment):
+                self.part1   = part1
+                self.part2   = part2
                 self.comment = comment
 
         self.pots = []
         self.num  = False
 
         for ln in self.block_lines:
-            ln, element = tools.get_string(ln)
-            ln, fil     = tools.get_file(ln)
-            comment     = tools.get_comment(ln)
+            # species_pot is a bit ugly as we can have one or two parts for any line.
+            parts     = tools.get_species_pot_parts(ln)
 
-            if element and fil:
-                self.pots.append(Pot(element, fil, comment))
+            part1     = parts[0]
+
+            if len(parts) == 1:
+                part2 = ''
+                ln    = ln[len(part1):].strip()
+            elif len(parts) == 2:
+                part2 = parts[1]
+                ln    = ln[len(part1):].strip()[len(part2):].strip()
+            else:
+                return
+
+            comment   = tools.get_comment(ln)
+
+            if part1:
+                self.pots.append(Pot(part1, part2, comment))
             else:
                 return
 
@@ -531,11 +543,11 @@ class SPECIES_POT(Cell):
     def get_block(self):
         super().block_initialise()
 
-        elements = tools.get_spaced_column([p.element for p in self.pots], self.args.no_extend_float)
-        fils     = tools.get_spaced_column([p.fil     for p in self.pots], self.args.no_extend_float)
+        part1s = tools.get_spaced_column([p.part1 for p in self.pots], self.args.no_extend_float, no_floats=True)
+        part2s = tools.get_spaced_column([p.part2 for p in self.pots], self.args.no_extend_float, no_floats=True)
 
         for num, pot in enumerate(self.pots):
-            self.block.append(elements[num] + '  ' + fils[num] + ('  ! ' + pot.comment if pot.comment else ''))
+            self.block.append(part1s[num] + '  ' + part2s[num] + ('  ! ' + pot.comment if pot.comment else ''))
             #self.block.append(pot.element + (' ' * ( 4-len(pot.element) )) +\
             #                  pot.fil + (' ' * (2+max_fil_len-len(pot.fil))) +\
             #                  ('! ' + pot.comment if pot.comment else ''))
