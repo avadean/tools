@@ -1892,7 +1892,7 @@ case $1 in
         accepted="print_true"
       ;;
 
-      no|nah|n|nope|yeetnt|NOOOOOOOOOOO|noo|narp|negative|false|incorrect|incorrection)
+      no|nah|n|nope|yeetnt|nooooooooooo|noo|narp|negative|false|incorrect|incorrection)
         accepted="print_false"
       ;;
 

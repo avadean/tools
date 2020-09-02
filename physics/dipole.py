@@ -79,7 +79,7 @@ class System:
         for i in range(self.N):
             self.dipole_vector+=self.list_particles[i].weighted_coords
         self.dipole = np.linalg.norm(self.dipole_vector) / 0.20819434 # Conversion to Debye.
-            
+
 
 
 class Particle:
