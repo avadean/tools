@@ -189,7 +189,7 @@ def check(cell_file, param_file, args):
 
                 # Check keywords that should have units, do.
                 if not unit(keyword.keyword, keywords_sum) and keyword.has_unit:
-                    print('Warning: ' + keyword.keyword + ' requires a unit. Default will be by CASTEP.')
+                    print('Warning: ' + keyword.keyword + ' requires a unit. Default will be used by CASTEP.')
 
 
                 # TODO: Unusual and specific checks.
