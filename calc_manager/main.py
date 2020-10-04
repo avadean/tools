@@ -183,8 +183,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if not args.serial and not args.mpi:
-        args.serial = True # <- *** Change here for default of comms arch ***
-        #args.mpi   = True
+        #args.serial = True # <- *** Change here for default of comms arch ***
+        args.mpi   = True
 
     if args.verbose:
         print('Using arguments:')
