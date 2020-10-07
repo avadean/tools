@@ -1,6 +1,6 @@
 #!/bin/bash
 
-check=$(ls -l . | grep -c ^d)
+check=$(\ls -l . | \grep -c ^d)
 
 if [ $check == 0 ]
 	then
@@ -10,7 +10,7 @@ if [ $check == 0 ]
 
 		for i in */ ; do
 			cd $i ;
-			count=$(ls | wc -l) ;
+			count=$(\ls | wc -l) ;
 			echo "${i:0:3}     $count" ;
 			cd ../
 		done
