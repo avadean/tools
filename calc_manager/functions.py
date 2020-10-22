@@ -1,5 +1,6 @@
 #! /usr/bin/python3.7
 
+import datetime
 import os
 import subprocess
 import sys
@@ -673,9 +674,13 @@ def sort(cell_file, param_file, args):
             print(param_file + ' sorted.')
 
 
-def sub(queue_file, direc, args):
+def sub(prefix, queue_file, direc, args):
+
+    with open(prefix + '.sub', 'a') as f:
+        f.write(prefix + ' calculation queued at ' + str(datetime.datetime.now()) + '.\n')
+
     with open(queue_file, 'a') as f:
-        f.write(args.arg2 + '  ' + direc + '\n')
+        f.write(prefix + '  ' + direc + '\n')
 
 
 def update_cell(cell_file, args):

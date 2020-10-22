@@ -366,16 +366,10 @@ if __name__ == '__main__':
             functions.sort(False, file_param, args)
 
     elif args.arg1 == 'sub':
-        if args.arg2:
-            if check_cell_exist(args.arg2):
-                direc = os.getcwd()
-                functions.sub(file_queue, direc, args)
-            else:
-                print('No cell file found for ' + args.arg2 + '... Exiting.')
-                sys.exit(1)
-        else:
-            print('Please enter a system prefix... Exiting')
-            sys.exit(1)
+        file_cell = get_cell_file(args)
+        prefix    = args.arg2 if args.arg2 else file_cell[:-5]
+        direc     = os.getcwd()
+        functions.sub(prefix, file_queue, direc, args)
 
     elif args.arg1 == 'update':
         if args.arg2 == 'cell':
