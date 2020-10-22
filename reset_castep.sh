@@ -21,4 +21,5 @@ rm *.geom ;
 rm *.usp ;
 rm *.uspso ;
 rm fort.* ;
+rm *.sub ;
 
