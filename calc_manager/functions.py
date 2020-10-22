@@ -673,6 +673,11 @@ def sort(cell_file, param_file, args):
             print(param_file + ' sorted.')
 
 
+def sub(queue_file, direc, args):
+    with open(queue_file, 'a') as f:
+        f.write(args.arg2 + '  ' + direc + '\n')
+
+
 def update_cell(cell_file, args):
     # args.arg3 is cell_to_upd.
     # args.arg4 is new_value.

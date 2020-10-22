@@ -29,6 +29,7 @@ file_mol_cell_temp  = "/home/dean/tools/files/cell_template_molecule.txt"
 file_mol_param_temp = "/home/dean/tools/files/param_template_molecule.txt"
 file_cry_cell_temp  = "/home/dean/tools/files/cell_template_crystal.txt"
 file_cry_param_temp = "/home/dean/tools/files/param_template_crystal.txt"
+file_queue          = "/home/dean/tools/files/castep_queue.txt"
 
 # Directories.
 dir_backup_cell     = "/home/dean/tools/calc_manager/backups/cell/"
@@ -157,7 +158,7 @@ def get_cell_file(args, input_prefix=False):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='Calculation Manager', description='Manages input and output of calculations with CASTEP')
 
-    parser.add_argument('arg1', action='store', choices=['check', 'create', 'gen', 'generate', 'query', 'remove', 'run', 'sort', 'test', 'update'])
+    parser.add_argument('arg1', action='store', choices=['check', 'create', 'gen', 'generate', 'query', 'remove', 'run', 'sort', 'sub', 'test', 'update'])
     parser.add_argument('arg2', action='store', default=False, nargs='?')
     parser.add_argument('arg3', action='store', default=False, nargs='?')
     parser.add_argument('arg4', action='store', default=False, nargs='?')
@@ -363,6 +364,18 @@ if __name__ == '__main__':
         if not args.arg2 or args.arg2 == 'param':
             file_param = get_param_file(args)
             functions.sort(False, file_param, args)
+
+    elif args.arg1 == 'sub':
+        if args.arg2:
+            if check_cell_exist(args.arg2):
+                direc = os.getcwd()
+                functions.sub(file_queue, direc, args)
+            else:
+                print('No cell file found for ' + args.arg2 + '... Exiting.')
+                sys.exit(1)
+        else:
+            print('Please enter a system prefix... Exiting')
+            sys.exit(1)
 
     elif args.arg1 == 'update':
         if args.arg2 == 'cell':
