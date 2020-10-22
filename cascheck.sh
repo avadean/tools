@@ -52,15 +52,6 @@ num_running=${#IDs[@]} ;
 num_queued=`cat "$queue_file" | wc -l` ;
 
 
-if [ $num_running -gt 0 ] || [ $num_queued -gt 0 ] ; then
-  echo ;
-  echo "Summary      ->" ;
-  echo " $num_queued jobs waiting to run. Waiting on $num_running." ;
-else
-  exit 0 ;
-fi
-
-
 if ! $no_run ; then
   if [ $num_queued -gt 0 ] ; then
     if [ $num_running -lt 3 ] ; then # Criteria for starting jobs whilst some are running.
@@ -75,9 +66,24 @@ if ! $no_run ; then
 
       sed -i '1d' "$queue_file" ;
 
-      echo "$prefix run started in $direct"
+      echo " $prefix run started in $direct"
+
+      num_queued=$[$num_queued-1]
+      num_running=$[$num_running+1]
+
+      IDs=( `\pgrep castep` ) ;
     fi
   fi
+fi
+
+
+if [ $num_running -gt 0 ] || [ $num_queued -gt 0 ] ; then
+  echo ;
+  echo "Summary      ->" ;
+  echo " $num_queued jobs queued." ;
+  echo " $num_running running." ;
+else
+  exit 0 ;
 fi
 
 
