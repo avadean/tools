@@ -567,6 +567,8 @@ case $1 in
 
           latest_commit_files="$dir_commits_saves_prefix$file_commit_prefix$latest_commit_ID"
           cd $latest_commit_files ;
+            array_files=( ) ;
+            array_dirs=( ) ;
             for j in * ; do
               if [ -f "$j" ] ; then
                 array_files+=( "$j" ) ;
