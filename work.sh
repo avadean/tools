@@ -566,19 +566,24 @@ case $1 in
           latest_commit=$(get_attribute $latest_commit_file "^description") ;
 
           latest_commit_files="$dir_commits_saves_prefix$file_commit_prefix$latest_commit_ID"
-          cd $latest_commit_files ;
+          if [ -d "$latest_commit_files" ] ; then
+            cd $latest_commit_files ;
+              array_files=( ) ;
+              array_dirs=( ) ;
+              for j in * ; do
+                if [ -f "$j" ] ; then
+                  array_files+=( "$j" ) ;
+                elif [ -d "$j" ] ; then
+                  array_dirs+=( "$j" ) ;
+                fi
+              done
+            cd ../ ;
+            #mapfile -t array_files < <( grep "^  file" $latest_commit_file ) ;
+            #mapfile -t array_dirs < <( grep "^  dir" $latest_commit_file ) ;
+          else
             array_files=( ) ;
             array_dirs=( ) ;
-            for j in * ; do
-              if [ -f "$j" ] ; then
-                array_files+=( "$j" ) ;
-              elif [ -d "$j" ] ; then
-                array_dirs+=( "$j" ) ;
-              fi
-            done
-          cd ../ ;
-          #mapfile -t array_files < <( grep "^  file" $latest_commit_file ) ;
-          #mapfile -t array_dirs < <( grep "^  dir" $latest_commit_file ) ;
+          fi
         cd ../ ;
       fi
 
