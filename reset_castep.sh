@@ -22,4 +22,5 @@ rm *.usp ;
 rm *.uspso ;
 rm fort.* ;
 rm *.sub ;
+rm *.md ;
 
