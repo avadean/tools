@@ -120,11 +120,11 @@ fi
 
 if $interface_search ; then
     if $no_locate ; then
-        for i in * ; do [ -f "${i}" ] && \grep --line-number --with-filename --extended-regexp --color=auto "interface\s+${1}" "$i" ; done ;
+        for i in * ; do [ -f "${i}" ] && \grep --line-number --with-filename --extended-regexp --color=auto "interface\s+${1}\b" "$i" ; done ;
     else
         temp_file=`mktemp` ;
 
-        for i in * ; do [ -f "${i}" ] && \grep --line-number --with-filename --extended-regexp "interface\s+${1}" "$i" ; done >> $temp_file ;
+        for i in * ; do [ -f "${i}" ] && \grep --line-number --with-filename --extended-regexp "interface\s+${1}\b" "$i" ; done >> $temp_file ;
 
         num_lines_inter=`cat $temp_file | wc -l` ;
         if [[ $num_lines_inter == 1 ]] ; then
@@ -134,7 +134,7 @@ if $interface_search ; then
 
             exit 0 ;
         else
-            for i in * ; do [ -f "${i}" ] && \grep --line-number --with-filename --extended-regexp --color=auto "interface\s+${1}" "$i" ; done ;
+            for i in * ; do [ -f "${i}" ] && \grep --line-number --with-filename --extended-regexp --color=auto "interface\s+${1}\b" "$i" ; done ;
         fi
     fi
 fi
