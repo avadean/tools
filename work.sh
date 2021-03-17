@@ -6,7 +6,7 @@
 
 script_this_script="/home/dean/tools/work.sh"
 
-file_output="/home/dean/tools/files/output.txt"
+file_output=`mktemp` #"/home/dean/tools/files/output.txt"
 file_IDs="/home/dean/tools/files/IDs.txt"
 file_UUIDs="/home/dean/tools/files/UUIDs.txt"
 file_summary_temp="/home/dean/tools/files/summary_temp_file.txt"
@@ -858,15 +858,17 @@ case $1 in
                 commit=$(get_attribute $commit_file "^description") ;
 
                 commit_files="$dir_commits_saves_prefix$file_commit_prefix$commit_ID"
-                cd $commit_files ;
-                  for j in * ; do
-                    if [ -f "$j" ] ; then
-                      array_files+=( "$j" ) ;
-                    elif [ -d "$j" ] ; then
-                      array_dirs+=( "$j" ) ;
-                    fi
-                  done
-                cd ../ ;
+                if [ -d "$commit_files" ] ; then
+                  cd $commit_files ;
+                    for j in * ; do
+                      if [ -f "$j" ] ; then
+                        array_files+=( "$j" ) ;
+                      elif [ -d "$j" ] ; then
+                        array_dirs+=( "$j" ) ;
+                      fi
+                    done
+                  cd ../ ;
+                fi
 
                 #mapfile -t array_files < <( grep "^  file" $commit_file ) ;
                 #mapfile -t array_dirs < <( grep "^  dir" $commit_file ) ;
