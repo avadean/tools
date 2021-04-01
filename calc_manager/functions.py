@@ -1,6 +1,7 @@
 #! /usr/bin/python3.7
 
 import datetime
+import math
 import os
 import subprocess
 import sys
@@ -605,6 +606,26 @@ def run(cell_file, param_file, file_bash_aliases, alias_notification, args):
     else:
         print('Cannot run - a cell file is required to run CASTEP... Exiting.')
         sys.exit(1)
+
+
+def set_queue(fil, hrs, args):
+    sec = hrs * 3600.0
+    itr = sec / 5.0
+
+    if itr < 1.0:
+        print('Cannot have less than one iteration (cannot be less than 5 sec)... Exiting.')
+        sys.exit(1)
+    else:
+        itr = str(math.ceil(itr))
+
+    if not os.path.isfile(fil):
+        print('Cannot find cascheck file at ' + fil + '... Exiting.')
+        sys.exit(1)
+    else:
+        command = 'i=1 ; while [ "$i" -le ' + itr + ' ] ; do sleep 2 ; bash ' + fil + ' >> /dev/null ; i=$(( i + 1 )) & done &'
+
+    result = subprocess.run(command, check=True, shell=True, text=True)
+
 
 
 def sort(cell_file, param_file, args):

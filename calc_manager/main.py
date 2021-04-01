@@ -23,6 +23,9 @@ import tools
 alias_script        = "calc"
 alias_notification  = "noti"
 
+# Scripts.
+file_cascheck       = "/home/dean/tools/cascheck.sh"
+
 # Files.
 file_bash_aliases   = "/home/dean/.bash_aliases"
 file_mol_cell_temp  = "/home/dean/tools/files/cell_template_molecule.txt"
@@ -158,7 +161,7 @@ def get_cell_file(args, input_prefix=False):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='Calculation Manager', description='Manages input and output of calculations with CASTEP')
 
-    parser.add_argument('arg1', action='store', choices=['check', 'create', 'gen', 'generate', 'query', 'remove', 'run', 'sort', 'sub', 'test', 'update'])
+    parser.add_argument('arg1', action='store', choices=['check', 'create', 'gen', 'generate', 'query', 'remove', 'run', 'setqueue', 'sort', 'sub', 'test', 'update'])
     parser.add_argument('arg2', action='store', default=False, nargs='?')
     parser.add_argument('arg3', action='store', default=False, nargs='?')
     parser.add_argument('arg4', action='store', default=False, nargs='?')
@@ -351,6 +354,19 @@ if __name__ == '__main__':
         file_cell  = get_cell_file(args, args.arg2)
         file_param = get_param_file(args, args.arg2)
         functions.run(file_cell, file_param, file_bash_aliases, alias_notification, args)
+
+    elif args.arg1 == 'setqueue':
+        if args.arg2:
+            try:
+                hrs = float(args.arg2)
+            except:
+                print('Queue duration must be a float in hours... Exiting.')
+                sys.exit(1)
+
+            functions.set_queue(file_cascheck, hrs, args)
+        else:
+            print('Please enter a duration to set queue for... Exiting.')
+            sys.exit(1)
 
     elif args.arg1 == 'sort':
         if args.arg2 and args.arg2 not in ['cell', 'param']:
