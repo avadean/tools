@@ -622,7 +622,7 @@ def set_queue(fil, hrs, args):
         print('Cannot find cascheck file at ' + fil + '... Exiting.')
         sys.exit(1)
     else:
-        command = 'i=1 ; while [ "$i" -le ' + itr + ' ] ; do sleep 2 ; bash ' + fil + ' >> /dev/null ; i=$(( i + 1 )) & done &'
+        command = 'i=1 ; while [ "$i" -le ' + itr + ' ] ; do sleep 2 ; bash ' + fil + ' >> /dev/null ; i=$(( i + 1 )) ; done &'
 
     result = subprocess.run(command, check=True, shell=True, text=True)
 
