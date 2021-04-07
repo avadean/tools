@@ -610,10 +610,10 @@ def run(cell_file, param_file, file_bash_aliases, alias_notification, args):
 
 def set_queue(fil, hrs, args):
     sec = hrs * 3600.0
-    itr = sec / 5.0
+    itr = sec / 2.0
 
     if itr < 1.0:
-        print('Cannot have less than one iteration (cannot be less than 5 sec)... Exiting.')
+        print('Cannot have less than one iteration (cannot be less than 2 sec)... Exiting.')
         sys.exit(1)
     else:
         itr = str(math.ceil(itr))
