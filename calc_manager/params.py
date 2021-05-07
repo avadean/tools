@@ -62,7 +62,9 @@ dict_keywords = {
     # Miscellaneous.
     'MAX_SCF_CYCLES'            : { 'priority' : 10.1, 'required' : False, 'default' : '30'                         , 'is_string' : False, 'is_bool' : False, 'is_float' : False, 'is_int' : True , 'has_unit' : False, 'allowed_values' : [float("inf"), 0]},
     'NUM_DUMP_CYCLES'           : { 'priority' : 10.2, 'required' : False, 'default' : '0'                          , 'is_string' : False, 'is_bool' : False, 'is_float' : False, 'is_int' : True , 'has_unit' : False, 'allowed_values' : [float("inf"), 0]},
-    'ELEC_ENERGY_TOL'           : { 'priority' : 10.3, 'required' : False, 'default' : '10^-5 eV for most tasks'    , 'is_string' : False, 'is_bool' : False, 'is_float' : True , 'is_int' : False , 'has_unit' : True , 'allowed_values' : [float("inf"), 0.0]},
+    'ELEC_ENERGY_TOL'           : { 'priority' : 10.3, 'required' : False, 'default' : '10^-5 eV for most tasks'    , 'is_string' : False, 'is_bool' : False, 'is_float' : True , 'is_int' : False, 'has_unit' : True , 'allowed_values' : [float("inf"), 0.0]},
+    'BS_EIGENVALUE_TOL'         : { 'priority' : 10.4, 'required' : False, 'default' : '10^-6 eV/eig (10^-9 eV/eig if TASK=MAGRES or PHONON)',
+                                                                                                                      'is_string' : False, 'is_bool' : False, 'is_float' : True , 'is_int' : False, 'has_unit' : True , 'allowed_values' : [float("inf"), 0.0]},
 
     # Extra.
     'CONTINUATION'              : { 'priority' : 11.1, 'required' : False, 'default' : 'NULL'                       , 'is_string' : True , 'is_bool' : False, 'is_float' : False, 'is_int' : False, 'has_unit' : False, 'allowed_values' : ['DEFAULT', 'any file with name up to 255 characters']},

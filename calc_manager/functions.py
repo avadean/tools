@@ -600,7 +600,8 @@ def run(cell_file, param_file, file_bash_aliases, alias_notification, args):
 
     if cell_file:
         prefix  = args.arg2 if args.arg2 else cell_file[:-5] # 5 corresponds to the 5 characters in '.cell'.
-        castep  = 'castep.' + ('serial ' if args.serial else 'mpi ') + prefix
+        castep  = ('castep.serial ' + prefix) if args.serial else ('castep.mpi ' + prefix)
+        #castep  = ('castep.serial ' + prefix) if args.serial else ('mpirun castep.   mpi ' + prefix)
         command = 'bash -c \'. ' + file_bash_aliases + ' ; ' + alias_notification + ' ' + castep + ' &\''
         result  = subprocess.run(command, check=True, shell=True, text=True)
     else:
