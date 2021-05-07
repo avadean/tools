@@ -70,6 +70,7 @@ if ! $no_run ; then
 
       cd "$direct" ;
       . "$alias_file" ;
+      #mpirun castep.mpi "$prefix" & #2>/dev/null
       castep.mpi "$prefix" & #2>/dev/null
 
       sed -i '1d' "$queue_file" ;
