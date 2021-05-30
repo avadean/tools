@@ -1567,7 +1567,8 @@ case $1 in
 
         "" )
           proj_pwd=$(pwd) ;
-          proj_last_mod_comp=$(find $proj_pwd -not -path "*/$dir_contents*" -exec stat {} --printf="%Y\n" \; | sort -nr | head -n 1) ;
+          #proj_last_mod_comp=$(find $proj_pwd -not -path "*/$dir_contents*" -exec stat {} --printf="%Y\n" \; | sort -nr | head -n 1) ;
+          proj_last_mod_comp=$(find $proj_pwd -not -path "*/$dir_contents*" -printf "%T@\n" | sort -n | tail -n 1) ;
           proj_last_mod_human=$(date --date="@$proj_last_mod_comp")
           #proj_last_mod_date=$(find $proj_pwd -not -path "*/$dir_contents*" -printf "%TY-%Tm-%Td\n" | sort -n -r | head -n 1) ;
           #proj_last_mod_time=$(find $proj_pwd -not -path "*/$dir_contents*" -printf "%TT\n" | sort -n -r | head -n 1) ;
