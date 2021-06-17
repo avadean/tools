@@ -1898,11 +1898,11 @@ case $1 in
   until [[ $accepted = "print_"* ]] ; do
     read -ep 'Would you like to see your active projects? ' response ;
     case "${response,,}" in
-      yes|yesh|yep|y|yh|ye|yea|yeep|yas|yass|yeah|true|positive|affirm|affirmative|alright|"go on then"|"go on"|fine|fineeeeeee)
+      yes|yesh|yep|y|ya|yh|ye|yea|yeep|yees|yis|yiss|yeepy|yeepies|yas|yass|yeah|true|positive|affirm|affirmative|alright|"go on then"|"go on"|fine|fineeeeeee|jagshemash)
         accepted="print_true"
       ;;
 
-      no|nah|n|nope|yeetnt|nooooooooooo|noo|narp|negative|false|incorrect|incorrection)
+      no|nah|n|nope|nein|yesbutno|yeetnt|nooooooooooo|noo|narp|negative|false|incorrect|incorrection|"definitely not"|"go away"|cba|bye)
         accepted="print_false"
       ;;
 
