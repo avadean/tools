@@ -1,5 +1,7 @@
 #!/bin/bash
 
+[ -z "$1" ] && echo Please supply phrase to search for. && exit 1 ;
+
 for arg in "$@" ; do
   shift
   case "$arg" in
@@ -7,6 +9,7 @@ for arg in "$@" ; do
     "--subroutine") set -- "$@" "-s"   ;;
     "--function"  ) set -- "$@" "-f"   ;;
     "--interface" ) set -- "$@" "-i"   ;;
+    "--file"      ) set -- "$@" "-F"   ;;
     "--no-locate" ) set -- "$@" "-L"   ;;
     *             ) set -- "$@" "$arg" ;;
   esac
@@ -16,8 +19,9 @@ print_help=false ;
 subroutine_search=true ;
 function_search=true ;
 interface_search=true ;
+file_search=true ;
 no_locate=false ;
-while getopts ":hgsfL" opt ; do
+while getopts ":hgsfiFL" opt ; do
   case ${opt} in
     h ) # Print help and exit.
       print_help=true ;
@@ -26,18 +30,27 @@ while getopts ":hgsfL" opt ; do
       subroutine_search=false ;
       function_search=false ;
       interface_search=false ;
+      file_search=false ;
     ;;
     s ) # Subroutine only search.
       function_search=false ;
       interface_search=false ;
+      file_search=false ;
     ;;
     f ) # Function only search.
       subroutine_search=false ;
-      interface_search=false
+      interface_search=false ;
+      file_search=false ;
     ;;
     i ) # Interface only search.
       subroutine_search=false ;
       function_search=false ;
+      file_search=false ;
+    ;;
+    F ) # File only search.
+      subroutine_search=false ;
+      function_search=false ;
+      interface_search=false ;
     ;;
     L ) # Do not locate.
       no_locate=true ;
@@ -140,7 +153,27 @@ fi
 
 
 
-if ( ! $subroutine_search && ! $function_search && ! $interface_search ) || [[ $((num_lines_sub+num_lines_func+num_lines_inter)) == 0 ]] ; then
+if $file_search ; then
+    files_found=( ) ;
+    num_files_found=$((0))
+    for i in ${files[@]} ; do
+        if [[ $i == *"${1}"*".f90" ]] || [[ $i == *"${1}"*".F90" ]] ; then
+            files_found+=( "$i" )
+            num_files_found=$((num_files_found+1))
+        fi
+    done
+    if [[ "$num_files_found" == 1 ]] && ! $no_locate ; then
+        vim "${files_found[0]}"
+    else
+        for file in "${files_found[@]}" ; do
+            echo "$file" ;
+        done
+    fi
+fi
+
+
+
+if ( ! $subroutine_search && ! $function_search && ! $interface_search && ! $file_search ) || [[ $((num_lines_sub+num_lines_func+num_lines_inter+num_files_found)) == 0 ]] ; then
     for i in ${files[@]} ; do [ -f "$i" ] && \grep --line-number --with-filename --color=auto "${1}" "${i}" ; done
 fi
 
