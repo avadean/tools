@@ -51,6 +51,8 @@ if $print_help ; then
   echo ;
   echo '-h, --help     prints this help and exits' ;
   echo '-n, --no-run   does not run any queued CASTEP calculations' ;
+  echo '-q, --quiet    does not give summary on jobs'
+
   exit 0 ;
 fi
 
