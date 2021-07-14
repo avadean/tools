@@ -162,6 +162,7 @@ if $file_search ; then
             num_files_found=$((num_files_found+1))
         fi
     done
+    #num_files_found=${#files_found[@]}
     if [[ "$num_files_found" == 1 ]] && ! $no_locate ; then
         vim "${files_found[0]}"
     else
