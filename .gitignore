@@ -4,3 +4,4 @@ files/
 *.pyc
 .idea/
 venv/
+*/test/
