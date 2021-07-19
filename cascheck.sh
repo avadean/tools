@@ -1,9 +1,11 @@
 
 alias_file="/home/dean/.bash_aliases" ;
 queue_file="/home/dean/tools/files/castep_queue.txt" ;
+running_file="/home/dean/tools/files/castep_running.txt" ;
 
-[ ! -f "$alias_file" ] && echo CASCHECK cannot find alias file && exit ;
-[ ! -f "$queue_file" ] && echo CASCHECK cannot find queue file && exit ;
+[ ! -f "$alias_file" ] && echo CASCHECK cannot find alias file && exit 1 ;
+[ ! -f "$queue_file" ] && echo CASCHECK cannot find queue file && exit 1 ;
+[ ! -f "$running_file" ] && echo CASCHECK cannot find running file && exit 1 ;
 
 
 for arg in "$@" ; do
@@ -59,7 +61,7 @@ fi
 
 IDs=( `\pgrep castep` ) ;
 num_running=${#IDs[@]} ;
-num_queued=`cat "$queue_file" | wc -l` ;
+num_queued=`wc --lines < "$queue_file"` ; #`cat "$queue_file" | wc -l` ;
 
 
 if ! $no_run ; then
@@ -86,6 +88,12 @@ if ! $no_run ; then
     fi
   fi
 fi
+
+
+> "$running_file" ;
+for ID in "${IDs[@]}" ; do
+  echo "$ID" >> "$running_file" ;
+done
 
 
 if ! $quiet ; then
@@ -118,6 +126,7 @@ if ! $quiet ; then
   ( [ $num_running -gt 0 ] || [ $num_queued -gt 0 ] ) && echo ;
 fi
 
+exit 0 ;
 
 #output=`ps -auxwwwf | \grep "castep" | \grep --invert-match "grep"` ;
 
