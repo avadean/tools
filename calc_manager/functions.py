@@ -514,8 +514,12 @@ def gen_from_cif(file_cif, file_cell, args):
         print('Failed to extract atoms from .cif file... Exiting.')
         sys.exit(1)
 
+def init(init_file_name, init_file, args):
+    init_file_lines = tools.get_file_lines(init_file, args)
+    tools.write_file_lines(init_file_name, init_file_lines, args)
 
-
+    if not args.quiet:
+        print('Got init file in {}'.format(init_file_name))
 
 def query_param(param_file, args):
     if not args.no_sort:

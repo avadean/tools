@@ -27,6 +27,7 @@ alias_notification  = "noti"
 file_cascheck       = "/home/dean/tools/cascheck.sh"
 
 # Files.
+file_init           = "/home/dean/tools/calc_manager/files/init.py"
 file_bash_aliases   = "/home/dean/.bash_aliases"
 file_mol_cell_temp  = "/home/dean/tools/files/cell_template_molecule.txt"
 file_mol_param_temp = "/home/dean/tools/files/param_template_molecule.txt"
@@ -161,7 +162,7 @@ def get_cell_file(args, input_prefix=False):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='Calculation Manager', description='Manages input and output of calculations with CASTEP')
 
-    parser.add_argument('arg1', action='store', choices=['check', 'create', 'gen', 'generate', 'query', 'remove', 'run', 'setqueue', 'sort', 'sub', 'test', 'update'])
+    parser.add_argument('arg1', action='store', choices=['check', 'create', 'gen', 'generate', 'init', 'query', 'remove', 'run', 'setqueue', 'sort', 'sub', 'test', 'update'])
     parser.add_argument('arg2', action='store', default=False, nargs='?')
     parser.add_argument('arg3', action='store', default=False, nargs='?')
     parser.add_argument('arg4', action='store', default=False, nargs='?')
@@ -307,6 +308,15 @@ if __name__ == '__main__':
         else:
             print('Not a valid generate option. Please use cell... Exiting.')
             sys.exit(1)
+
+    elif args.arg1 == 'init':
+        file_init_name = 'calculations.py'
+
+        if file_init_name in os.listdir():
+            print('File name ' + file_init_name + ' is taken, cannot create an init file... Exiting.')
+            sys.exit(1)
+
+        functions.init(file_init_name, file_init, args)
 
     elif args.arg1 == 'query':
         if args.arg2 == 'cell':
