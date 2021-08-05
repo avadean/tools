@@ -14,6 +14,7 @@ for arg in "$@" ; do
     "--help"   ) set -- "$@" "-h"   ;;
     "--no-run" ) set -- "$@" "-n"   ;;
     "--quiet"  ) set -- "$@" "-q"   ;;
+    "--long"   ) set -- "$@" "-l"   ;;
     *          ) set -- "$@" "$arg" ;;
   esac
 done
@@ -22,7 +23,8 @@ done
 print_help=false ;
 no_run=false ;
 quiet=false ;
-while getopts ":hnq" opt ; do
+long=false ;
+while getopts ":hnql" opt ; do
   case ${opt} in
     h ) # Print help and exit.
       print_help=true ;
@@ -32,6 +34,9 @@ while getopts ":hnq" opt ; do
     ;;
     q ) # Check to submit calculations quietly.
       quiet=true ;
+    ;;
+    l ) # Will print out all queued calculations.
+      long=true ;
     ;;
     \? )
       echo "Invalid option [$OPTARG]." ;
@@ -53,7 +58,8 @@ if $print_help ; then
   echo ;
   echo '-h, --help     prints this help and exits' ;
   echo '-n, --no-run   does not run any queued CASTEP calculations' ;
-  echo '-q, --quiet    does not give summary on jobs'
+  echo '-q, --quiet    does not give summary on jobs' ;
+  echo '-l, --long     will print out all queued calculations' ;
 
   exit 0 ;
 fi
@@ -110,17 +116,27 @@ if ! $quiet ; then
   [ $num_running -gt 0 ] && echo && echo "Running jobs ->"
   for ID in "${IDs[@]}" ; do
     direc=`pwdx "$ID"` ;
+
     cmmnd=`ps "$ID" | \grep --only-matching --color=always --extended-regexp "castep(\.mpi|\.serial)? +\w+$"` ;
+
     echo " $direc $cmmnd" ;
   done
 
 
   [ $num_queued -gt 0 ] && echo && echo "Queued  jobs ->" ;
+  n=$[1] ;
   while read line ; do
+    if ! $long ; then
+      [ $n -gt 5 ] && echo " ..." && break ;
+    fi
+
     direct=${line[0]} ;
     prefix=${line[1]} ;
+
     echo -e "\e[0;32m${prefix}\e[0m $direct" ;
-  done < "$queue_file"
+
+    n=$[$n + 1] ;
+  done < "$queue_file" ;
 
 
   ( [ $num_running -gt 0 ] || [ $num_queued -gt 0 ] ) && echo ;
