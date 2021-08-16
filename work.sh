@@ -1188,96 +1188,97 @@ case $1 in
 ###########################################
   "save" )
     if [ -d $dir_contents ] ; then
-      case $2 in
-        "" )
-          read -ep 'Please enter a save name (leave blank if not needed): ' save_name ;
-          while [[ $save_name = *"$char_separator"* ]] || [[ $save_name = *"$str_bisector"* ]] ; do
-            read -ep 'That is not a valid input, please enter another name: ' save_name ;
-          done
+      echo "Save feature contains rm and mv commands so has been disabled."
+      ###case $2 in
+      ###  "" )
+      ###    read -ep 'Please enter a save name (leave blank if not needed): ' save_name ;
+      ###    while [[ $save_name = *"$char_separator"* ]] || [[ $save_name = *"$str_bisector"* ]] ; do
+      ###      read -ep 'That is not a valid input, please enter another name: ' save_name ;
+      ###    done
 
-          proj_pwd=$(pwd) ;
-          save_temp_dir="$dir_tools/$dir_save_temp"
-          save_ID_file="$dir_contents/$dir_saves/$file_save_IDs"
-          if [ -d $save_temp_dir ] ; then
-            echo "Cannot save project as a directory called $dir_save_temp already exists in $dir_tools." >> $file_output ;
-          else
-            save_ID=$[$(tail -1 $save_ID_file) + 1] ; echo "$save_ID" >> $save_ID_file ;
-            save_created_comp=$(date +"%s") ;
-            save_created_human=$(date --date="@$save_created_comp") ;
+      ###    proj_pwd=$(pwd) ;
+      ###    save_temp_dir="$dir_tools/$dir_save_temp"
+      ###    save_ID_file="$dir_contents/$dir_saves/$file_save_IDs"
+      ###    if [ -d $save_temp_dir ] ; then
+      ###      echo "Cannot save project as a directory called $dir_save_temp already exists in $dir_tools." >> $file_output ;
+      ###    else
+      ###      save_ID=$[$(tail -1 $save_ID_file) + 1] ; echo "$save_ID" >> $save_ID_file ;
+      ###      save_created_comp=$(date +"%s") ;
+      ###      save_created_human=$(date --date="@$save_created_comp") ;
 
-            save_file="$proj_pwd/$dir_contents/$dir_saves/$file_save_prefix$save_ID"
-            save_dir="$proj_pwd/$dir_contents/$dir_saves/$dir_saves_files_prefix$file_save_prefix$save_ID"
+      ###      save_file="$proj_pwd/$dir_contents/$dir_saves/$file_save_prefix$save_ID"
+      ###      save_dir="$proj_pwd/$dir_contents/$dir_saves/$dir_saves_files_prefix$file_save_prefix$save_ID"
 
-            echo "ID            $char_separator $save_ID" >> $save_file ;
-            echo "name          $char_separator $save_name" >> $save_file ;
-            echo "created human $char_separator $save_created_human" >> $save_file ;
-            echo "created Epoch $char_separator $save_created_comp" >> $save_file ;
+      ###      echo "ID            $char_separator $save_ID" >> $save_file ;
+      ###      echo "name          $char_separator $save_name" >> $save_file ;
+      ###      echo "created human $char_separator $save_created_human" >> $save_file ;
+      ###      echo "created Epoch $char_separator $save_created_comp" >> $save_file ;
 
-            cp -r $proj_pwd $save_temp_dir ;
-            mv $save_temp_dir $save_dir ; # Do NOT shorten this and the above line into one step, BAD THINGS WILL HAPPEN
-            cd $save_dir ; rm -r $dir_contents ; #touch $file_save_indicator ; # Used to add save indicator (now not needed) to save folder and also removes project contents folder.
-            echo "Save number $save_ID complete." >> $file_output ;
-            cd $proj_pwd/$dir_contents/$dir_history ;
-              history_save save $save_ID $save_created_comp "${save_name:-"no name"}" ;
-            cd ../../ ;
-          fi
-        ;;
+      ###      cp -r $proj_pwd $save_temp_dir ;
+      ###      mv $save_temp_dir $save_dir ; # Do NOT shorten this and the above line into one step, BAD THINGS WILL HAPPEN
+      ###      cd $save_dir ; rm -r $dir_contents ; #touch $file_save_indicator ; # Used to add save indicator (now not needed) to save folder and also removes project contents folder.
+      ###      echo "Save number $save_ID complete." >> $file_output ;
+      ###      cd $proj_pwd/$dir_contents/$dir_history ;
+      ###        history_save save $save_ID $save_created_comp "${save_name:-"no name"}" ;
+      ###      cd ../../ ;
+      ###    fi
+      ###  ;;
 
-        "list" ) # List saves with save date.
-          proj_pwd=$(pwd) ;
-          num_saves=$(ls $proj_pwd/$dir_contents/$dir_saves | grep "^$file_save_prefix" | wc -l) ;
+      ###  "list" ) # List saves with save date.
+      ###    proj_pwd=$(pwd) ;
+      ###    num_saves=$(ls $proj_pwd/$dir_contents/$dir_saves | grep "^$file_save_prefix" | wc -l) ;
 
-          cd $proj_pwd/$dir_contents/$dir_saves ;
-          if [ "$num_saves" -gt "0" ] ; then
-            arr_files=( $(ls -v) ) ;
-            for save_file in "${arr_files[@]}" ; do
-              if [[ $save_file = "$file_save_prefix"* ]] ; then
-                save_ID=$(get_attribute $save_file "^ID") ;
-                save_name=$(get_attribute $save_file "^name") ;
-                save_date=$(get_attribute $save_file "^created human") ;
+      ###    cd $proj_pwd/$dir_contents/$dir_saves ;
+      ###    if [ "$num_saves" -gt "0" ] ; then
+      ###      arr_files=( $(ls -v) ) ;
+      ###      for save_file in "${arr_files[@]}" ; do
+      ###        if [[ $save_file = "$file_save_prefix"* ]] ; then
+      ###          save_ID=$(get_attribute $save_file "^ID") ;
+      ###          save_name=$(get_attribute $save_file "^name") ;
+      ###          save_date=$(get_attribute $save_file "^created human") ;
 
-                echo -e "\e[${format_saves};${col_fore_saves};${col_back_saves}msave $save_ID\e[0m" >> $file_output ;
-                echo "  name   $char_separator ${save_name:-"no name"}" >> $file_output ;
-                echo "  date   $char_separator $save_date" >> $file_output ;
-                echo >> $file_output ;
-              fi
-            done
-          else
-            echo "There are no current saves for this project." >> $file_output ;
-          fi
-        ;;
+      ###          echo -e "\e[${format_saves};${col_fore_saves};${col_back_saves}msave $save_ID\e[0m" >> $file_output ;
+      ###          echo "  name   $char_separator ${save_name:-"no name"}" >> $file_output ;
+      ###          echo "  date   $char_separator $save_date" >> $file_output ;
+      ###          echo >> $file_output ;
+      ###        fi
+      ###      done
+      ###    else
+      ###      echo "There are no current saves for this project." >> $file_output ;
+      ###    fi
+      ###  ;;
 
-        "get" ) # Retrieves files and directories for save.
+      ###  "get" ) # Retrieves files and directories for save.
 
-          if [ -z $3 ] ; then
-            echo "Please supply a save number to get." >> $file_output ;
-          else
-            if [[ $[$3] != $3 ]] ; then
-              echo "Please supply the save number as an integer only." >> $file_output ;
-            else
-              proj_pwd=$(pwd) ;
-              saves_dir="$proj_pwd/$dir_contents/$dir_saves/" ; # Directory where saves are held.
-              save_dir="$proj_pwd/$dir_contents/$dir_saves/$dir_saves_files_prefix$file_save_prefix$3" ; #Directory of files for specified save.
-              save_dir_new="$proj_pwd/$dir_saves_files_prefix$file_save_prefix$3" ;
-              save_name=$(get_attribute $saves_dir/$file_save_prefix$3 "^name") ;
-              if [ -d $save_dir ] ; then
-                if [ -d $save_dir_new ] ; then
-                  echo "$save_dir_new directory already exists in project directory." >> $file_output ;
-                else
-                  cp -r $save_dir $save_dir_new ;
-                  echo "Files and directories for save $3 (${save_name:-"no name"}) retrieved in directory $save_dir_new." >> $file_output ;
-                fi
-              else
-                echo "Save $3 does not exist." >> $file_output ;
-              fi
-            fi
-          fi
-        ;;
+      ###    if [ -z $3 ] ; then
+      ###      echo "Please supply a save number to get." >> $file_output ;
+      ###    else
+      ###      if [[ $[$3] != $3 ]] ; then
+      ###        echo "Please supply the save number as an integer only." >> $file_output ;
+      ###      else
+      ###        proj_pwd=$(pwd) ;
+      ###        saves_dir="$proj_pwd/$dir_contents/$dir_saves/" ; # Directory where saves are held.
+      ###        save_dir="$proj_pwd/$dir_contents/$dir_saves/$dir_saves_files_prefix$file_save_prefix$3" ; #Directory of files for specified save.
+      ###        save_dir_new="$proj_pwd/$dir_saves_files_prefix$file_save_prefix$3" ;
+      ###        save_name=$(get_attribute $saves_dir/$file_save_prefix$3 "^name") ;
+      ###        if [ -d $save_dir ] ; then
+      ###          if [ -d $save_dir_new ] ; then
+      ###            echo "$save_dir_new directory already exists in project directory." >> $file_output ;
+      ###          else
+      ###            cp -r $save_dir $save_dir_new ;
+      ###            echo "Files and directories for save $3 (${save_name:-"no name"}) retrieved in directory $save_dir_new." >> $file_output ;
+      ###          fi
+      ###        else
+      ###          echo "Save $3 does not exist." >> $file_output ;
+      ###        fi
+      ###      fi
+      ###    fi
+      ###  ;;
 
-        * )
-          echo "Not a valid save option. Please use list, get or no option." >> $file_output ;
-        ;;
-      esac
+      ###  * )
+      ###    echo "Not a valid save option. Please use list, get or no option." >> $file_output ;
+      ###  ;;
+      ###esac
     else
       echo $err_dir_not_proj >> $file_output ;
     fi
