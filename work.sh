@@ -550,6 +550,7 @@ case $1 in
       proj_description=$(get_attribute $file_info "^description") ;
       #proj_last_mod=$(date --date="@$(get_attribute $file_info "^last mod Epoch" )") ;
       proj_last_mod=$(get_attribute $file_info "^last mod human") ;
+      proj_status=$(get_attribute $file_info "^status") ;
       proj_deadline_human=$(get_attribute $file_info "^deadline human") ;
       proj_deadline_comp=$(get_attribute $file_info "^deadline Epoch") ;
       proj_location=$(get_attribute $file_info "^location") ;
@@ -593,7 +594,6 @@ case $1 in
       echo "description   $char_separator $proj_description" >> $file_output ;
 
       if [ "$1" = "check" ] || [ "$2" = "all" ] || [ "$2" = "hold" ] || [ "$2" = "ongoing" ]; then
-        proj_status=$(get_attribute $file_info "^status") ;
         echo "status        $char_separator $proj_status" >> $file_output ;
       fi
 
