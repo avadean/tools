@@ -6,10 +6,12 @@
 
 script_this_script="/home/dean/tools/work.sh"
 
+[ -f "$script_this_script" ] || { echo Cannot find script file - hard exit ; exit 1 ; }
+
 file_output=`mktemp` #"/home/dean/tools/files/output.txt"
 file_IDs="/home/dean/tools/files/IDs.txt"
-file_UUIDs="/home/dean/tools/files/UUIDs.txt"
-file_summary_temp="/home/dean/tools/files/summary_temp_file.txt"
+#file_UUIDs="/home/dean/tools/files/UUIDs.txt"
+file_summary_temp=`mktemp` #"/home/dean/tools/files/summary_temp_file.txt"
 file_info="info"
 file_commits="commits"
 file_commit_IDs="IDs"
@@ -28,8 +30,17 @@ file_summary_prefix="summary_"
 file_log_IDs="IDs"
 file_log="log"
 
+[ -f "$file_output" ] || { echo Cannot get an output file - hard exit ; exit 2 ; }
+[ -f "$file_IDs" ] || { echo Cannot find ID file - hard exit ; exit 3 ; }
+#[ -f "$file_UUIDs" ] || { echo Cannot find UUID file - hard exit ; exit 4 ; }
+[ -f "$file_summary_temp" ] || { echo Cannot find summary temp file - hard exit ; exit 5 ; }
+
 dir_tools="/home/dean/tools/"
 dir_work="/home/dean/work/"
+
+[ -d "$dir_tools" ] || { echo Cannot find tools directory - hard exit ; exit 6 ; }
+[ -d "$dir_work" ] || { echo Cannot find work directory - hard exit ; exit 7 ; }
+
 dir_work_len=$(echo -n $dir_work | wc -c)
 dir_contents=".work"
 dir_commits="commits"
@@ -40,9 +51,15 @@ dir_saves_files_prefix="files_"
 dir_save_temp="proj_save_temp"
 dir_history="history"
 dir_knowledge="knowledge"
+
 dir_proj_backups="/home/dean/tools/files/project_backups/"
 dir_daily_summaries="/home/dean/tools/files/daily_summaries/"
 dir_log="/home/dean/tools/files/logs/"
+
+[ -d "$dir_proj_backups" ] || { echo Cannot find project backup directory - hard exit ; exit 8 ; }
+[ -d "$dir_daily_summaries" ] || { echo Cannot find daily summary directory - hard exit ; exit 9 ; }
+[ -d "$dir_log" ] || { echo Cannot find log directory - hard exit ; exit 10 ; }
+
 dir_log_prefix="log_"
 dir_log_save_prefix="files_"
 
