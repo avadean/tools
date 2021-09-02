@@ -1188,7 +1188,7 @@ case $1 in
 ###########################################
   "save" )
     if [ -d $dir_contents ] ; then
-      echo "Save feature contains rm and mv commands so has been disabled."
+      echo "Save feature would contain remove and move commands so has been disabled." >> $file_output ;
       ###case $2 in
       ###  "" )
       ###    read -ep 'Please enter a save name (leave blank if not needed): ' save_name ;
