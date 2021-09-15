@@ -705,7 +705,7 @@ def sort(cell_file, param_file, args):
 def sub(prefix, queue_file, direc, args):
 
     with open(prefix + '.sub', 'a') as f:
-        f.write(prefix + ' calculation queued at ' + str(datetime.datetime.now()) + '.\n')
+        f.write(prefix + ' calculation queued at ' + str(datetime.datetime.now()) + '\n')
 
     with open(queue_file, 'a') as f:
         f.write(prefix + '  ' + direc + '\n')
