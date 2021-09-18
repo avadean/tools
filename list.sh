@@ -14,6 +14,53 @@ function getFileCount {
     echo $(\ls "$1" | wc --lines) ;
 }
 
+
+for arg in "$@" ; do
+    shift
+    case "$arg" in
+        "--all"  ) set -- "$@" "-a"   ;;
+        "--help" ) set -- "$@" "-h"   ;;
+        *        ) set -- "$@" "$arg" ;;
+    esac
+done
+
+
+# Set defaults.
+printHelp=false ;
+all=false ;
+
+while getopts ":ah" opt ; do
+    case ${opt} in
+        h ) # Print help and exit.
+            printHelp=true ;
+        ;;
+        a ) # List all directories.
+            all=true ;
+        ;;
+        \? )
+            echo "Invalid option [$OPTARG]." ;
+        ;;
+        : )
+            echo "Invalid option: $OPTARG requires an argument" ;
+        ;;
+    esac
+done
+
+[ $OPTIND != 1 ] && shift $((OPTIND-1)) ;
+
+
+if $printHelp ; then
+    echo 'Usage: list OPTION... [KEYWORD]...' ;
+    echo ;
+    echo 'List number of items in specified directories.' ;
+    echo ;
+    echo '-h, --help     prints this help and exits' ;
+    echo '-a, --all      lists for all directories in current directory' ;
+
+    exit 0 ;
+fi
+
+
 #dir="DIR"
 #items="ITEMS"
 #spaces=$(( ($num - ${#dir}) / 2 ))
@@ -21,7 +68,7 @@ function getFileCount {
 HEADER="     DIR         ITEMS"
 
 
-if [[ $1 == "all" ]] ; then
+if $all ; then
     (( $(getDirCount ".") == 0 )) && { echo "No directories to list." ; exit 1 ; } ;
 
     arr=( */ ) ;
@@ -67,4 +114,7 @@ else
         cd "$origDir" ;
     done
 fi
+
+
+exit 0 ;
 
