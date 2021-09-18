@@ -13,7 +13,9 @@ function printDirCount {
 HEADER="     DIR         ITEMS"
 
 
-if (( $# == 0 )) ; then
+[[ $1 == "all" ]] && arr=( */ ) || arr=( $@ ) ;
+
+if (( ${#arr[@]} == 0 )) ; then
     count=$(\ls -l . | \grep --count "^d") ;
 
     (( $count == 0 )) && { echo "No directories to list." ; exit 1 ; } ;
@@ -28,7 +30,7 @@ else
     origDir=$(pwd) ;
 
     # Check if there are any non-empty directories first.
-    for dir in "$@" ; do
+    for dir in "${arr[@]}" ; do
         [ -d "$dir" ] || continue ;
         count=$(\ls -l "$dir" | \grep --count "^d") ;
 
@@ -37,7 +39,7 @@ else
     done
 
     # Now the main loop to output the results.
-    for dir in "$@" ; do
+    for dir in "${arr[@]}" ; do
         [ -d "$dir" ] || { echo "Skipping $dir as not a directory." ; continue ; } ;
 
         echo "${dir}:" ;
