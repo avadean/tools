@@ -6,6 +6,14 @@ function printDirCount {
     printf "%-${num}s     %s     %s\n" "${1:0:${num}}" "$2" ;
 }
 
+function getDirCount {
+    echo $(\ls -l "$1" | \grep --count "^d") ;
+}
+
+function getFileCount {
+    echo $(\ls "$1" | wc --lines) ;
+}
+
 #dir="DIR"
 #items="ITEMS"
 #spaces=$(( ($num - ${#dir}) / 2 ))
@@ -13,18 +21,22 @@ function printDirCount {
 HEADER="     DIR         ITEMS"
 
 
-[[ $1 == "all" ]] && arr=( */ ) || arr=( $@ ) ;
+if [[ $1 == "all" ]] ; then
+    (( $(getDirCount ".") == 0 )) && { echo "No directories to list." ; exit 1 ; } ;
+
+    arr=( */ ) ;
+else
+    arr=( $@ ) ;
+fi
+
 
 if (( ${#arr[@]} == 0 )) ; then
-    count=$(\ls -l . | \grep --count "^d") ;
-
-    (( $count == 0 )) && { echo "No directories to list." ; exit 1 ; } ;
+    (( $(getDirCount ".") == 0 )) && { echo "No directories to list." ; exit 1 ; } ;
 
     echo "$HEADER" ;
 
     for i in */ ; do
-        count=$(\ls "$i" | wc -l) ;
-        printDirCount "$i" "$count" ;
+        printDirCount "$i" "$(getFileCount "$i")" ;
     done
 else
     origDir=$(pwd) ;
@@ -32,10 +44,9 @@ else
     # Check if there are any non-empty directories first.
     for dir in "${arr[@]}" ; do
         [ -d "$dir" ] || continue ;
-        count=$(\ls -l "$dir" | \grep --count "^d") ;
 
         # If there are some non-empty directories then have a header.
-        (( $count != 0 )) && { printf "  " ; echo "$HEADER" ; break ; } ;
+        (( $(getDirCount "$dir") != 0 )) && { printf "  " ; echo "$HEADER" ; break ; } ;
     done
 
     # Now the main loop to output the results.
@@ -44,14 +55,13 @@ else
 
         echo "${dir}:" ;
 
-        (( $count == 0 )) && { echo "  No directories to list." ; continue ; } ;
+        (( $(getDirCount "$dir") == 0 )) && { echo "  No directories to list." ; continue ; } ;
 
         cd "$dir" ;
 
         for i in */ ; do
-            count=$(\ls "$i" | wc -l) ;
             printf "  " ;
-            printDirCount "$i" "$count" ;
+            printDirCount "$i" "$(getFileCount "$i")" ;
         done
 
         cd "$origDir" ;
