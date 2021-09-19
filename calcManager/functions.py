@@ -613,6 +613,27 @@ def run(cell_file, param_file, file_bash_aliases, alias_notification, args):
         sys.exit(1)
 
 
+def set_check(fil, hrs, args):
+    interval = 2.0
+
+    sec = hrs * 3600.0
+    itr = sec / interval
+
+    if itr < 1.0:
+        print('Cannot have less than one iteration... Exiting.')
+        sys.exit(1)
+    else:
+        itr = str(math.ceil(itr))
+
+    if not os.path.isfile(fil):
+        print('Cannot find cascheck file at ' + fil + '... Exiting.')
+        sys.exit(1)
+    else:
+        command = 'i=1 ; while [ "$i" -le ' + itr + ' ] ; do sleep ' + str(interval) + ' ; bash ' + fil + ' --no-run --quiet >> /dev/null 2>&1 ; i=$(( i + 1 )) ; done &'
+
+    result = subprocess.run(command, check=True, shell=True, text=True)
+
+
 def set_queue(fil, hrs, args):
     interval = 1.0
 
