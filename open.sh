@@ -1,5 +1,7 @@
 
-[ $# == 0 ] && echo 'No file(s) to open.' && exit 1 ;
+[ $# == 0 ] && { echo 'No file(s) to open.' ; exit 2 ; } ;
+
+err=false
 
 for file in "$@" ; do
     if [ -f "$file" ] ; then
@@ -7,6 +9,9 @@ for file in "$@" ; do
         disown ;
     else
         echo "$file not an acceptable file." ;
+        err=true
     fi
 done
+
+$err && exit 1 || exit 0 ;
 
