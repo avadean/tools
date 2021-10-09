@@ -24,6 +24,7 @@ print_help=false ;
 no_run=false ;
 quiet=false ;
 long=false ;
+error=false ;
 while getopts ":hnql" opt ; do
   case ${opt} in
     h ) # Print help and exit.
@@ -40,9 +41,15 @@ while getopts ":hnql" opt ; do
     ;;
     \? )
       echo "Invalid option [$OPTARG]." ;
+      print_help=true ;
+      error=true ;
+      break ;
     ;;
     : )
       echo "Invalid option: $OPTARG requires an argument" ;
+      print_help=true ;
+      error=true ;
+      break ;
     ;;
   esac
 done
@@ -61,7 +68,7 @@ if $print_help ; then
   echo '-q, --quiet    does not give summary on jobs' ;
   echo '-l, --long     will print out all queued calculations' ;
 
-  exit 0 ;
+  $error && exit 1 || exit 0 ;
 fi
 
 
@@ -72,7 +79,7 @@ num_queued=`wc --lines < "$queue_file"` ; #`cat "$queue_file" | wc -l` ;
 
 if ! $no_run ; then
   if [ $num_queued -gt 0 ] ; then
-    if [ $num_running -lt 2 ] ; then # Criteria for starting jobs whilst some are running.
+    if [ $num_running -lt 1 ] ; then # Criteria for starting jobs whilst some are running.
       data=( `head -1 "$queue_file"` ) ;
 
       prefix=${data[0]} ;
