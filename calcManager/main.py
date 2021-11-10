@@ -27,7 +27,7 @@ alias_notification  = "noti"
 file_cascheck       = "/home/dean/tools/cascheck.sh"
 
 # Files.
-file_init           = "/home/dean/tools/calc_manager/files/init.py"
+file_init           = "/home/dean/tools/calcManager/files/init.py"
 file_bash_aliases   = "/home/dean/.bash_aliases"
 file_mol_cell_temp  = "/home/dean/tools/files/cell_template_molecule.txt"
 file_mol_param_temp = "/home/dean/tools/files/param_template_molecule.txt"
