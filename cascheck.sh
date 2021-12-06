@@ -79,7 +79,7 @@ num_queued=`wc --lines < "$queue_file"` ; #`cat "$queue_file" | wc -l` ;
 
 if ! $no_run ; then
   if [ $num_queued -gt 0 ] ; then
-    if [ $num_running -lt 1 ] ; then # Criteria for starting jobs whilst some are running.
+    if [ $num_running -lt 3 ] ; then # Criteria for starting jobs whilst some are running.
       data=( `head -1 "$queue_file"` ) ;
 
       prefix=${data[0]} ;
