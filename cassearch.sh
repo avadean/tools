@@ -110,11 +110,11 @@ files=( "$castep_file" `for file in $(ls $func_dir) ; do echo "$func_dir$file" ;
 
 if $subroutine_search ; then
     if $no_locate ; then
-        for i in ${files[@]} ; do [ -f "${i}" ] && \grep --line-number --with-filename --extended-regexp --color=auto "subroutine\s+${1}\s*\(" "$i" ; done ;
+        for i in ${files[@]} ; do [ -f "${i}" ] && \grep --ignore-case --line-number --with-filename --extended-regexp --color=auto "subroutine\s+${1}\s*\(" "$i" ; done ;
     else
         temp_file=`mktemp` ;
 
-        for i in ${files[@]} ; do [ -f "${i}" ] && \grep --line-number --with-filename --extended-regexp --color=auto "subroutine\s+${1}\s*\(" "$i" ; done >> $temp_file ;
+        for i in ${files[@]} ; do [ -f "${i}" ] && \grep --ignore-case --line-number --with-filename --extended-regexp --color=auto "subroutine\s+${1}\s*\(" "$i" ; done >> $temp_file ;
 
         num_lines_sub=`cat $temp_file | wc -l` ;
         vim_or_cat_file "$temp_file" "$num_lines_sub"
@@ -125,11 +125,11 @@ fi
 
 if $function_search ; then
     if $no_locate ; then
-         for i in ${files[@]} ; do [ -f "${i}" ] && \grep --line-number --with-filename --extended-regexp --color=auto "function\s+${1}\s*\(" "$i" ; done ;
+         for i in ${files[@]} ; do [ -f "${i}" ] && \grep --ignore-case --line-number --with-filename --extended-regexp --color=auto "function\s+${1}\s*\(" "$i" ; done ;
      else
          temp_file=`mktemp` ;
 
-         for i in ${files[@]} ; do [ -f "${i}" ] && \grep --line-number --with-filename --extended-regexp --color=auto "function\s+${1}\s*\(" "$i" ; done >> $temp_file ;
+         for i in ${files[@]} ; do [ -f "${i}" ] && \grep --ignore-case --line-number --with-filename --extended-regexp --color=auto "function\s+${1}\s*\(" "$i" ; done >> $temp_file ;
 
          num_lines_func=`cat $temp_file | wc -l` ;
          vim_or_cat_file "$temp_file" "$num_lines_func"
@@ -140,11 +140,11 @@ fi
 
 if $interface_search ; then
     if $no_locate ; then
-        for i in ${files[@]} ; do [ -f "${i}" ] && \grep --line-number --with-filename --extended-regexp --color=auto "interface\s+${1}\b" "$i" ; done ;
+        for i in ${files[@]} ; do [ -f "${i}" ] && \grep --ignore-case --line-number --with-filename --extended-regexp --color=auto "interface\s+${1}\b" "$i" ; done ;
     else
         temp_file=`mktemp` ;
 
-        for i in ${files[@]} ; do [ -f "${i}" ] && \grep --line-number --with-filename --extended-regexp --color=auto "interface\s+${1}\b" "$i" ; done >> $temp_file ;
+        for i in ${files[@]} ; do [ -f "${i}" ] && \grep --ignore-case --line-number --with-filename --extended-regexp --color=auto "interface\s+${1}\b" "$i" ; done >> $temp_file ;
 
         num_lines_inter=`cat $temp_file | wc -l` ;
         vim_or_cat_file "$temp_file" "$num_lines_inter"
@@ -175,7 +175,7 @@ fi
 
 
 if ( ! $subroutine_search && ! $function_search && ! $interface_search && ! $file_search ) || [[ $((num_lines_sub+num_lines_func+num_lines_inter+num_files_found)) == 0 ]] ; then
-    for i in ${files[@]} ; do [ -f "$i" ] && \grep --line-number --with-filename --color=auto "${1}" "${i}" ; done
+    for i in ${files[@]} ; do [ -f "$i" ] && \grep --ignore-case --line-number --with-filename --color=auto "${1}" "${i}" ; done
 fi
 
 
