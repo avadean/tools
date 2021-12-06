@@ -23,4 +23,5 @@ rm *.uspso ;
 rm fort.* ;
 rm *.sub ;
 rm *.md ;
+rm *.profile ;
 
