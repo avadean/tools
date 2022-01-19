@@ -107,6 +107,17 @@ castep_file="/home/dean/work/castep-adean/Source/castep.f90"
 files=( "$castep_file" `for file in $(ls $func_dir) ; do echo "$func_dir$file" ; done` `for file in $(ls $fund_dir) ; do echo "$fund_dir$file" ; done` `for file in $(ls $util_dir) ; do echo "$util_dir$file" ; done` ) ;
 
 
+# If we want to search for files then if we search for an exact file name, go straight to it.
+if $file_search ; then
+    len=$((${#1} + 5))  # +5 is 1 for / and 4 for .f90
+    for i in ${files[@]} ; do
+        short_name=${i:${#i}-$len:${#i}}  # Gets just the last part. e.g. short_name=castep.f90 for i=/home/dean/work/castep-adean/Source/castep.f90
+
+        [[ $short_name == "/${1}.f90" ]] && { vim "$i" ; exit 0 ; } ;
+    done
+fi
+
+
 
 if $subroutine_search ; then
     if $no_locate ; then
