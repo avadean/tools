@@ -74,9 +74,10 @@ if $print_help ; then
     echo 'Search for functions, subroutines, interfaces or files.' ;
     echo 'Options best for use in the CASTEP source code.' ;
     echo ;
-    echo '-f, --function       searches and locates functions only'
+    echo '-f, --function       searches and locates functions only' ;
     echo '-s, --subroutine     searches and locates subroutines only' ;
-    echo '-i, --interface      searches and locates interfaces only'
+    echo '-i, --interface      searches and locates interfaces only' ;
+    echo '-F, --file           searches and locates files only' ;
     echo '-g, --grep           just greps the files' ;
     echo '-h, --help           prints this help and exits' ;
     echo '-L, --no-locate      will not vim into subroutine if found' ;
