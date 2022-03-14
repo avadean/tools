@@ -167,7 +167,7 @@ while getopts ":hsK" opt ; do
       no_zero_knowledge=true
     ;;
     \? )
-      echo "Invalid option [$OPTARG]: type "q -help" for help." >> "$file_output"
+      echo "Invalid option [$OPTARG]: add "--help" for help." >> "$file_output"
     ;;
     : )
       echo "Invalid option: $OPTARG requires an argument" >> "$file_output"
