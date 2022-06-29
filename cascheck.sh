@@ -2,10 +2,12 @@
 alias_file="/home/dean/.bash_aliases" ;
 queue_file="/home/dean/tools/files/castep_queue.txt" ;
 running_file="/home/dean/tools/files/castep_running.txt" ;
+executable="/home/dean/work/castep-adean/obj/linux_x86_64_gfortran--mpi/castep.mpi" ;
 
 [ ! -f "$alias_file" ] && echo CASCHECK cannot find alias file && exit 1 ;
-[ ! -f "$queue_file" ] && echo CASCHECK cannot find queue file && exit 1 ;
-[ ! -f "$running_file" ] && echo CASCHECK cannot find running file && exit 1 ;
+[ ! -f "$queue_file" ] && echo CASCHECK cannot find queue file && exit 2 ;
+[ ! -f "$running_file" ] && echo CASCHECK cannot find running file && exit 3 ;
+[ ! -f "$executable" ] && echo CASCHECK cannot find CASTEP executable && exit 4 ;
 
 
 for arg in "$@" ; do
@@ -79,7 +81,7 @@ num_queued=`wc --lines < "$queue_file"` ; #`cat "$queue_file" | wc -l` ;
 
 if ! $no_run ; then
   if [ $num_queued -gt 0 ] ; then
-    if [ $num_running -lt 3 ] ; then # Criteria for starting jobs whilst some are running.
+    if [ $num_running -lt 1 ] ; then # Criteria for starting jobs whilst some are running.
       data=( `head -1 "$queue_file"` ) ;
 
       prefix=${data[0]} ;
@@ -87,8 +89,21 @@ if ! $no_run ; then
 
       cd "$direct" ;
       . "$alias_file" ;
+
+      # Old: not in use.
       #mpirun castep.mpi "$prefix" & #2>/dev/null
-      castep.mpi "$prefix" & #2>/dev/null
+
+      # Serial: CASTEP adean repository.
+      "$executable" "$prefix" & #2>/dev/null
+
+      # MPI: CASTEP adean repository.
+      #mpirun "$executable" "$prefix" & #2>/dev/null
+
+      # Default: CASTEP castep repository for EFG calculations 20220623.
+      #/home/dean/code/castep-castep-223c842e5ef9/obj/linux_x86_64_gfortran--serial/castep.serial "$prefix" & #2>/dev/null
+
+      # EFGs: CASTEP adean repository for EFG calculations 20220629.
+      #/home/dean/code/adean24-castep-adean-cbb45e32c466/obj/linux_x86_64_gfortran--serial/castep.serial "$prefix" & #2>/dev/null
 
       sed -i '1d' "$queue_file" ;
 
