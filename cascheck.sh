@@ -94,7 +94,7 @@ if ! $no_run ; then
       #mpirun castep.mpi "$prefix" & #2>/dev/null
 
       # Serial: CASTEP adean repository.
-      "$executable" "$prefix" & #2>/dev/null
+      #"$executable" "$prefix" & #2>/dev/null
 
       # MPI: CASTEP adean repository.
       #mpirun "$executable" "$prefix" & #2>/dev/null
@@ -103,7 +103,7 @@ if ! $no_run ; then
       #/home/dean/code/castep-castep-223c842e5ef9/obj/linux_x86_64_gfortran--serial/castep.serial "$prefix" & #2>/dev/null
 
       # EFGs: CASTEP adean repository for EFG calculations 20220629.
-      #/home/dean/code/adean24-castep-adean-cbb45e32c466/obj/linux_x86_64_gfortran--serial/castep.serial "$prefix" & #2>/dev/null
+      /home/dean/code/adean24-castep-adean-cbb45e32c466/obj/linux_x86_64_gfortran--serial/castep.serial "$prefix" & #2>/dev/null
 
       sed -i '1d' "$queue_file" ;
 
